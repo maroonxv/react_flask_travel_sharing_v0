@@ -14,7 +14,6 @@ from app_auth.domain.value_objects.user_value_objects import (
 )
 from app_auth.domain.demand_interface.i_user_repository import IUserRepository
 from app_auth.domain.demand_interface.i_password_hasher import IPasswordHasher
-from app_auth.domain.demand_interface.i_user_uniqueness_checker import IUserUniquenessChecker
 
 
 class AuthService:
@@ -27,12 +26,10 @@ class AuthService:
     def __init__(
         self,
         user_repo: IUserRepository,
-        password_hasher: IPasswordHasher,
-        uniqueness_checker: IUserUniquenessChecker
+        password_hasher: IPasswordHasher
     ):
         self._user_repo = user_repo
         self._password_hasher = password_hasher
-        self._uniqueness_checker = uniqueness_checker
     
     def register_user(
         self,
@@ -42,8 +39,6 @@ class AuthService:
         role: UserRole = UserRole.USER
     ) -> User:
         """注册新用户
-        
-        验证唯一性约束后创建用户。
         
         Args:
             username: 用户名
@@ -58,10 +53,10 @@ class AuthService:
             ValueError: 用户名或邮箱已存在
         """
         # 唯一性检查
-        if not self._uniqueness_checker.is_username_unique(username):
+        if self._user_repo.exists_by_username(username):
             raise ValueError(f"Username '{username.value}' already exists")
         
-        if not self._uniqueness_checker.is_email_unique(email):
+        if self._user_repo.exists_by_email(email):
             raise ValueError(f"Email '{email.value}' already exists")
         
         # 通过工厂方法创建用户

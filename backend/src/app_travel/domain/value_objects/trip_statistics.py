@@ -26,6 +26,7 @@ class TripStatistics:
     total_estimated_cost: Money       # 预估总花费
     activity_cost: Money              # 活动花费
     transit_cost: Money               # 交通花费
+    activity_count: int               # 活动数量
     visited_locations: tuple          # 所有去过的地点（用于打卡地图）
     
     def __init__(
@@ -36,6 +37,7 @@ class TripStatistics:
         total_estimated_cost: Money,
         activity_cost: Money,
         transit_cost: Money,
+        activity_count: int,
         visited_locations: List[Location]
     ):
         """初始化统计报表
@@ -48,6 +50,7 @@ class TripStatistics:
         object.__setattr__(self, 'total_estimated_cost', total_estimated_cost)
         object.__setattr__(self, 'activity_cost', activity_cost)
         object.__setattr__(self, 'transit_cost', transit_cost)
+        object.__setattr__(self, 'activity_count', activity_count)
         object.__setattr__(self, 'visited_locations', tuple(visited_locations))
     
     @property
@@ -106,6 +109,7 @@ class TripStatistics:
             "total_estimated_cost": str(self.total_estimated_cost),
             "activity_cost": str(self.activity_cost),
             "transit_cost": str(self.transit_cost),
+            "activity_count": self.activity_count,
             "visited_location_count": self.visited_location_count,
             "visited_locations": [
                 {

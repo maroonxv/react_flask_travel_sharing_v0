@@ -732,6 +732,7 @@ class Trip:
         total_distance = 0.0
         total_play_time = 0
         total_transit_time = 0
+        activity_count = 0
         activity_cost = Money.zero()
         transit_cost = Money.zero()
         visited_locations: List[Location] = []
@@ -739,6 +740,7 @@ class Trip:
         for day in self._days:
             # 统计活动
             total_play_time += day.calculate_total_play_time()
+            activity_count += len(day.activities)
             activity_cost = activity_cost + day.calculate_activity_cost()
             
             for activity in day.activities:
@@ -756,6 +758,7 @@ class Trip:
             total_estimated_cost=activity_cost + transit_cost,
             activity_cost=activity_cost,
             transit_cost=transit_cost,
+            activity_count=activity_count,
             visited_locations=visited_locations
         )
     
