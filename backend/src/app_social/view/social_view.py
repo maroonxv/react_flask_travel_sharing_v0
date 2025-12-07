@@ -49,16 +49,34 @@ def create_post():
     """创建帖子"""
     try:
         user_id = _get_current_user_id()
-        data = request.get_json()
         
+        # 检查 Content-Type
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # 处理文件上传
+            title = request.form.get('title', '')
+            content = request.form.get('content', '')
+            tags = request.form.getlist('tags') # form中可能是重复键或者json字符串，这里简化假设
+            visibility = request.form.get('visibility', 'public')
+            trip_id = request.form.get('trip_id')
+            media_files = request.files.getlist('media_files')
+        else:
+            # 处理 JSON 请求 (不支持文件上传)
+            data = request.get_json()
+            title = data.get('title', '')
+            content = data.get('content', '')
+            tags = data.get('tags')
+            visibility = data.get('visibility', 'public')
+            trip_id = data.get('trip_id')
+            media_files = None
+
         result = social_service.create_post(
             author_id=user_id,
-            title=data.get('title', ''),
-            content=data.get('content', ''),
-            media_urls=data.get('media_urls'),
-            tags=data.get('tags'),
-            visibility=data.get('visibility', 'public'),
-            trip_id=data.get('trip_id')
+            title=title,
+            content=content,
+            media_files=media_files,
+            tags=tags,
+            visibility=visibility,
+            trip_id=trip_id
         )
         return jsonify(result), 201
     except Exception as e:
@@ -86,15 +104,34 @@ def update_post(post_id):
     """更新帖子"""
     try:
         user_id = _get_current_user_id()
-        data = request.get_json()
         
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            title = request.form.get('title')
+            content = request.form.get('content')
+            tags = request.form.getlist('tags') if 'tags' in request.form else None
+            media_files = request.files.getlist('media_files')
+            # 如果没有文件，media_files 可能是空列表，这里需要注意 update_post 的逻辑
+            # update_post 中 media_files=None 表示不更新，[] 表示清空？
+            # 现有的 update_post 逻辑：if media_files is not None -> 更新。
+            # request.files.getlist 如果没传 key 返回空列表。
+            # 如果我们想区分“没传”和“传了空”，在 multipart 中比较难。
+            # 简化逻辑：如果是 multipart，且没有文件，传 None？
+            if not media_files and 'media_files' not in request.files:
+                 media_files = None
+        else:
+            data = request.get_json()
+            title = data.get('title')
+            content = data.get('content')
+            tags = data.get('tags')
+            media_files = None
+
         social_service.update_post(
             post_id=post_id,
             operator_id=user_id,
-            title=data.get('title'),
-            content=data.get('content'),
-            media_urls=data.get('media_urls'),
-            tags=data.get('tags')
+            title=title,
+            content=content,
+            media_files=media_files,
+            tags=tags
         )
         return jsonify({"message": "Updated successfully"}), 200
     except Exception as e:

@@ -19,12 +19,14 @@ from app_social.infrastructure.database.dao_impl.sqlalchemy_conversation_dao imp
 from app_social.infrastructure.database.dao_impl.sqlalchemy_message_dao import SqlAlchemyMessageDao
 from shared.database.core import SessionLocal
 from shared.event_bus import get_event_bus
+from shared.storage.local_file_storage import LocalFileStorageService
 
 class SocialService:
     """社交模块应用服务"""
     
     def __init__(self):
         self._event_bus = get_event_bus()
+        self._storage_service = LocalFileStorageService()
     
     # ==================== 帖子管理 ====================
     
@@ -33,7 +35,7 @@ class SocialService:
         author_id: str,
         title: str,
         content: str,
-        media_urls: List[str] = None,
+        media_files: List[Any] = None, # 接收文件对象 (FileStorage)
         tags: List[str] = None,
         visibility: str = "public",
         trip_id: Optional[str] = None
@@ -45,11 +47,19 @@ class SocialService:
             post_dao = SqlAlchemyPostDao(session)
             post_repo = PostRepositoryImpl(post_dao)
             
-            # 2. 创建领域对象
+            # 2. 处理文件上传
+            image_urls = []
+            if media_files:
+                for file in media_files:
+                    if file:
+                        url = self._storage_service.save(file, sub_folder="post_images")
+                        image_urls.append(url)
+            
+            # 3. 创建领域对象
             post_content = PostContent(
                 title=title,
                 text=content,
-                images=tuple(media_urls or []),
+                images=tuple(image_urls),
                 tags=tuple(tags or [])
             )
             
@@ -92,7 +102,7 @@ class SocialService:
         operator_id: str,
         title: Optional[str] = None,
         content: Optional[str] = None,
-        media_urls: Optional[List[str]] = None,
+        media_files: Optional[List[Any]] = None,
         tags: Optional[List[str]] = None
     ) -> None:
         """更新帖子内容"""
@@ -108,12 +118,21 @@ class SocialService:
             if not post.can_be_edited_by(operator_id):
                 raise ValueError("Permission denied")
             
+            # 处理新图片上传
+            new_image_urls = None
+            if media_files is not None:
+                new_image_urls = []
+                for file in media_files:
+                    if file:
+                        url = self._storage_service.save(file, sub_folder="post_images")
+                        new_image_urls.append(url)
+            
             # 构造新的 PostContent
             current_content = post.content
             new_content = PostContent(
                 title=title if title is not None else current_content.title,
                 text=content if content is not None else current_content.text,
-                images=tuple(media_urls) if media_urls is not None else current_content.images,
+                images=tuple(new_image_urls) if new_image_urls is not None else current_content.images,
                 tags=tuple(tags) if tags is not None else current_content.tags
             )
             

@@ -12,4 +12,4 @@
 
 
 
-1. 在中为用pytest撰写覆盖率很高的集成测试，要求数据库与文件存储都使用真实的实现，不要使用mock。在测试不通过的时候，不要修改测试代码使得测试通过（这是极其愚蠢的先射箭后画靶子的行为），而是要修改被测试的代码使得测试通过
+1. 在 travel_sharing_app_v0\backend\tests\integration\view\test_social_view.py（现在为空） 中为 travel_sharing_app_v0\backend\src\app_social\view\social_view.py 撰写覆盖率很高的集成测试。在测试不通过的时候，不要修改测试代码使得测试通过（这是极其愚蠢的先射箭后画靶子的行为），而是要修改被测试的代码使得测试通过
