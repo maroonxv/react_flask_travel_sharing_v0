@@ -16,8 +16,16 @@ from app_social.infrastructure.database.persistent_model.message_po import Messa
 from app_travel.infrastructure.database.persistent_model.trip_po import TripPO, TripMemberPO, TripDayPO, ActivityPO
 
 def create_app():
-    app = Flask(__name__)
+    # 配置静态文件目录
+    # static_url_path='/static' 表示 URL 前缀
+    # static_folder='static' 表示实际文件夹路径（相对于 app.py 所在目录）
+    app = Flask(__name__, static_url_path='/static', static_folder='static')
     CORS(app)
+    
+    # 确保上传目录存在
+    upload_dir = os.path.join(app.static_folder, 'uploads')
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
     
     # 初始化数据库表
     # 在实际生产环境中，建议使用 Alembic 进行数据库迁移，而不是 create_all

@@ -2,7 +2,7 @@
 帖子及相关持久化对象 (PO - Persistent Object)
 
 用于 SQLAlchemy ORM 映射，与数据库表对应。
-包含 PostPO, CommentPO, LikePO。
+包含 PostPO, CommentPO, LikePO, PostImagePO, PostTagPO。
 """
 from datetime import datetime
 from typing import List, Optional, Tuple
@@ -98,6 +98,29 @@ class CommentPO(Base):
         self.is_deleted = comment.is_deleted
 
 
+class PostImagePO(Base):
+    """帖子图片持久化对象"""
+    __tablename__ = 'post_images'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    post_id = Column(String(36), ForeignKey('posts.id'), nullable=False, index=True)
+    image_url = Column(String(500), nullable=False)
+    display_order = Column(Integer, nullable=False, default=0)
+    
+    post = relationship('PostPO', back_populates='images')
+
+
+class PostTagPO(Base):
+    """帖子标签持久化对象"""
+    __tablename__ = 'post_tags'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    post_id = Column(String(36), ForeignKey('posts.id'), nullable=False, index=True)
+    tag = Column(String(50), nullable=False, index=True)
+    
+    post = relationship('PostPO', back_populates='tags')
+
+
 class PostPO(Base):
     """帖子持久化对象 - SQLAlchemy 模型"""
     
@@ -109,8 +132,7 @@ class PostPO(Base):
     # 内容
     title = Column(String(200), nullable=False)
     text = Column(Text, nullable=False)
-    images_json = Column(Text, nullable=False, default='[]')  # JSON 数组
-    tags_json = Column(Text, nullable=False, default='[]')    # JSON 数组
+    # images 和 tags 现已通过关联表实现
     
     # 元数据
     visibility = Column(String(20), nullable=False, default='public')
@@ -124,41 +146,22 @@ class PostPO(Base):
     # 关联
     comments = relationship('CommentPO', back_populates='post', cascade='all, delete-orphan')
     likes = relationship('LikePO', back_populates='post', cascade='all, delete-orphan')
+    images = relationship('PostImagePO', back_populates='post', cascade='all, delete-orphan', order_by='PostImagePO.display_order')
+    tags = relationship('PostTagPO', back_populates='post', cascade='all, delete-orphan')
     
     def __repr__(self) -> str:
         return f"PostPO(id={self.id}, title={self.title[:20]}...)"
     
-    @property
-    def images(self) -> Tuple[str, ...]:
-        """获取图片列表"""
-        return tuple(json.loads(self.images_json))
-    
-    @images.setter
-    def images(self, value: Tuple[str, ...]) -> None:
-        """设置图片列表"""
-        self.images_json = json.dumps(list(value))
-    
-    @property
-    def tags(self) -> Tuple[str, ...]:
-        """获取标签列表"""
-        return tuple(json.loads(self.tags_json))
-    
-    @tags.setter
-    def tags(self, value: Tuple[str, ...]) -> None:
-        """设置标签列表"""
-        self.tags_json = json.dumps(list(value))
-    
     def to_domain(self) -> Post:
-        """将持久化对象转换为领域实体
+        """将持久化对象转换为领域实体"""
+        image_urls = tuple(img.image_url for img in self.images)
+        tag_list = tuple(t.tag for t in self.tags)
         
-        Returns:
-            Post 领域实体
-        """
         content = PostContent(
             title=self.title,
             text=self.text,
-            images=self.images,
-            tags=self.tags
+            images=image_urls,
+            tags=tag_list
         )
         
         domain_comments = [c.to_domain() for c in self.comments]
@@ -179,14 +182,7 @@ class PostPO(Base):
     
     @classmethod
     def from_domain(cls, post: Post) -> 'PostPO':
-        """从领域实体创建持久化对象
-        
-        Args:
-            post: Post 领域实体
-            
-        Returns:
-            PostPO 持久化对象
-        """
+        """从领域实体创建持久化对象"""
         po = cls(
             id=post.id.value,
             author_id=post.author_id,
@@ -198,26 +194,33 @@ class PostPO(Base):
             created_at=post.created_at,
             updated_at=post.updated_at
         )
-        po.images = post.content.images
-        po.tags = post.content.tags
         
-        # 关联对象
+        # 处理关联对象
+        po.images = [
+            PostImagePO(image_url=url, display_order=idx) 
+            for idx, url in enumerate(post.content.images)
+        ]
+        po.tags = [PostTagPO(tag=tag) for tag in post.content.tags]
+        
         po.comments = [CommentPO.from_domain(c) for c in post.comments]
         po.likes = [LikePO.from_domain(l) for l in post.likes]
         
         return po
     
     def update_from_domain(self, post: Post) -> None:
-        """从领域实体更新持久化对象
-        
-        Args:
-            post: Post 领域实体
-        """
+        """从领域实体更新持久化对象"""
         self.title = post.content.title
         self.text = post.content.text
-        self.images = post.content.images
-        self.tags = post.content.tags
         self.visibility = post.visibility.value
         self.trip_id = post.trip_id
         self.is_deleted = post.is_deleted
         self.updated_at = post.updated_at
+        
+        # 更新图片：直接替换集合，利用 cascade='all, delete-orphan'
+        self.images = [
+            PostImagePO(image_url=url, display_order=idx) 
+            for idx, url in enumerate(post.content.images)
+        ]
+        
+        # 更新标签：直接替换集合
+        self.tags = [PostTagPO(tag=tag) for tag in post.content.tags]

@@ -7,13 +7,20 @@
 4. 添加 init.py exports 以方便导入
 
 
+确保现在post中的图片在存储时，存储的是我位于本机文件系统上的图片文件路径
 
 
+根据现有最新的 sqlalchemy_post_dao.pyss，更新 travel_sharing_app_v0\backend\tests\unit\database\dao\test_post_dao.py，使得测试覆盖率很高。但是禁止你因为测试没有通过而修改测试让它通过（这是先射箭后画靶子的愚蠢行为），而是根据测试失败的信息，修改被测试的代码，使得测试通过。
+
+
+在travel_sharing_app_v0\backend\tests\unit\aggregate 中分别用pytest创建测试travel_sharing_app_v0\backend\src\app_social\domain\aggregate\conversation_aggregate.py、travel_sharing_app_v0\backend\src\app_social\domain\aggregate\post_aggregate.py、travel_sharing_app_v0\backend\src\app_travel\domain\aggregate\trip_aggregate.py的覆盖率很高的测试。在测试不通过时，修改被测试的代码，使得测试通过，而不是修改测试让它通过（这是先射箭后画靶子的愚蠢行为）。
 
 
 
 
 根据travel_sharing_app_v0\README.md中项目描述以及app_social的领域层travel_sharing_app_v0\backend\src\app_social\domain、app_social的基础设施层travel_sharing_app_v0\backend\src\app_social\infrastructure，在travel_sharing_app_v0\backend\src\app_social\services\social_service.py中编写app_social的应用层；在travel_sharing_app_v0\backend\src\app_social\view\social_view.py中编写app_social的接口层
+
+零、在编写app_social的应用层和接口层之前，先检查app_social的领域层与基础设施层是否完整，有没有自相矛盾、不完备的地方。
 
 一、应用层应当至少实现以下要点。其它要点你可以发挥想象力进行补充：
   1. 事务边界与生命周期管理（领域层只管修改内存中的对象，应用层负责调用Repository把这些修改变成数据库里的永久记录）

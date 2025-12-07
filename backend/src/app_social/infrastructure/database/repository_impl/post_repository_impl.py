@@ -2,7 +2,7 @@
 帖子仓库实现
 
 实现 IPostRepository 接口。
-负责 Post 聚合根及其子实体（Comment, Like）的持久化。
+负责 Post 聚合根及其子实体（Comment, Like, Image, Tag）的持久化。
 """
 from typing import List, Optional
 
@@ -10,7 +10,7 @@ from app_social.domain.demand_interface.i_post_repository import IPostRepository
 from app_social.domain.aggregate.post_aggregate import Post
 from app_social.domain.value_objects.social_value_objects import PostId, PostVisibility
 from app_social.infrastructure.database.dao_interface.i_post_dao import IPostDao
-from app_social.infrastructure.database.persistent_model.post_po import PostPO, CommentPO, LikePO
+from app_social.infrastructure.database.persistent_model.post_po import PostPO, CommentPO, LikePO, PostImagePO, PostTagPO
 
 
 class PostRepositoryImpl(IPostRepository):
@@ -31,9 +31,13 @@ class PostRepositoryImpl(IPostRepository):
         if existing_po:
             # 更新现有帖子
             existing_po.update_from_domain(post)
-            # 更新评论和点赞
+            # 更新子实体
             self._sync_comments(existing_po, post)
             self._sync_likes(existing_po, post)
+            # images 和 tags 已经在 PostPO.update_from_domain 中通过替换列表的方式更新了
+            # 利用 SQLAlchemy 的 cascade='all, delete-orphan' 机制，
+            # 替换列表会自动删除旧的关联对象并插入新的，所以这里不需要额外的 sync 方法。
+            
             self._post_dao.update(existing_po)
         else:
             # 添加新帖子
@@ -52,6 +56,12 @@ class PostRepositoryImpl(IPostRepository):
         new_comment_ids = {c.comment_id for c in post.comments}
         
         # 删除不再存在的评论
+        # 注意：在 SQLAlchemy 中，对于 cascade='all, delete-orphan'，
+        # 应该从集合中移除对象，而不是重新赋值列表（虽然重新赋值通常也工作，但移除更明确）
+        # 但为了保持代码风格一致性，这里沿用之前的逻辑，
+        # 只要 PostPO.comments 配置了 cascade，SQLAlchemy 会处理孤儿删除。
+        
+        # 这种过滤方式其实是重新创建了一个列表，SQLAlchemy 会比较新旧列表
         post_po.comments = [c for c in post_po.comments if c.id in new_comment_ids]
         
         # 更新或添加评论

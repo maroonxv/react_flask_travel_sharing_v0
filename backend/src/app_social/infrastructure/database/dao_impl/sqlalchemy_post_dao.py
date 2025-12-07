@@ -1,10 +1,10 @@
 from typing import List, Optional
 import json
-from sqlalchemy.orm import Session
-from sqlalchemy import select, delete, desc, and_, exists, func
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import select, delete, desc, and_, exists, func, or_
 
 from app_social.infrastructure.database.dao_interface.i_post_dao import IPostDao
-from app_social.infrastructure.database.persistent_model.post_po import PostPO
+from app_social.infrastructure.database.persistent_model.post_po import PostPO, PostTagPO
 
 class SqlAlchemyPostDao(IPostDao):
     """基于 SQLAlchemy 的帖子 DAO 实现"""
@@ -12,9 +12,18 @@ class SqlAlchemyPostDao(IPostDao):
     def __init__(self, session: Session):
         self.session = session
 
+    def _get_base_query(self):
+        """获取基础查询，包含预加载配置"""
+        return select(PostPO).options(
+            joinedload(PostPO.comments),
+            joinedload(PostPO.likes),
+            joinedload(PostPO.images),
+            joinedload(PostPO.tags)
+        )
+
     def find_by_id(self, post_id: str) -> Optional[PostPO]:
-        stmt = select(PostPO).where(PostPO.id == post_id)
-        return self.session.execute(stmt).scalars().first()
+        stmt = self._get_base_query().where(PostPO.id == post_id)
+        return self.session.execute(stmt).scalars().unique().first()
 
     def find_by_author(
         self,
@@ -23,17 +32,17 @@ class SqlAlchemyPostDao(IPostDao):
         limit: int = 20,
         offset: int = 0
     ) -> List[PostPO]:
-        stmt = select(PostPO).where(PostPO.author_id == author_id)
+        stmt = self._get_base_query().where(PostPO.author_id == author_id)
         
         if not include_deleted:
             stmt = stmt.where(PostPO.is_deleted == False)
             
         stmt = stmt.order_by(desc(PostPO.created_at)).limit(limit).offset(offset)
-        return list(self.session.execute(stmt).scalars().all())
+        return list(self.session.execute(stmt).scalars().unique().all())
 
     def find_by_trip(self, trip_id: str) -> Optional[PostPO]:
         stmt = (
-            select(PostPO)
+            self._get_base_query()
             .where(
                 and_(
                     PostPO.trip_id == trip_id,
@@ -41,7 +50,7 @@ class SqlAlchemyPostDao(IPostDao):
                 )
             )
         )
-        return self.session.execute(stmt).scalars().first()
+        return self.session.execute(stmt).scalars().unique().first()
 
     def find_public_feed(
         self,
@@ -50,7 +59,7 @@ class SqlAlchemyPostDao(IPostDao):
         tags: Optional[List[str]] = None
     ) -> List[PostPO]:
         stmt = (
-            select(PostPO)
+            self._get_base_query()
             .where(
                 and_(
                     PostPO.visibility == 'public',
@@ -60,15 +69,12 @@ class SqlAlchemyPostDao(IPostDao):
         )
         
         if tags:
-            # 简单的标签过滤：任一标签匹配即可
-            # tags_json LIKE '%"tag"%'
-            # 组合 OR 条件
-            from sqlalchemy import or_
-            conditions = [PostPO.tags_json.like(f'%"{tag}"%') for tag in tags]
-            stmt = stmt.where(or_(*conditions))
+            # 标签过滤：任一标签匹配即可
+            # 使用 PostPO.tags.any(PostTagPO.tag.in_(tags))
+            stmt = stmt.where(PostPO.tags.any(PostTagPO.tag.in_(tags)))
             
         stmt = stmt.order_by(desc(PostPO.created_at)).limit(limit).offset(offset)
-        return list(self.session.execute(stmt).scalars().all())
+        return list(self.session.execute(stmt).scalars().unique().all())
 
     def find_by_visibility(
         self,
@@ -77,7 +83,7 @@ class SqlAlchemyPostDao(IPostDao):
         offset: int = 0
     ) -> List[PostPO]:
         stmt = (
-            select(PostPO)
+            self._get_base_query()
             .where(
                 and_(
                     PostPO.visibility == visibility,
@@ -88,21 +94,21 @@ class SqlAlchemyPostDao(IPostDao):
             .limit(limit)
             .offset(offset)
         )
-        return list(self.session.execute(stmt).scalars().all())
+        return list(self.session.execute(stmt).scalars().unique().all())
 
     def add(self, post_po: PostPO) -> None:
         self.session.add(post_po)
-        self.session.flush()
+        # 移除显式 flush，由应用层统一 commit
 
     def update(self, post_po: PostPO) -> None:
         self.session.merge(post_po)
-        self.session.flush()
+        # 移除显式 flush
 
     def delete(self, post_id: str) -> None:
         # 物理删除
         stmt = delete(PostPO).where(PostPO.id == post_id)
         self.session.execute(stmt)
-        self.session.flush()
+        # 移除显式 flush
 
     def exists(self, post_id: str) -> bool:
         stmt = select(exists().where(PostPO.id == post_id))
