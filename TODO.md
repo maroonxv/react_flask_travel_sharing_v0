@@ -12,9 +12,6 @@
 
 
 
-
-在travel_sharing_app_v0\backend\tests\unit\aggregate 中分别用pytest创建测试travel_sharing_app_v0\backend\src\app_social\domain\aggregate\conversation_aggregate.py、travel_sharing_app_v0\backend\src\app_social\domain\aggregate\post_aggregate.py、travel_sharing_app_v0\backend\src\app_travel\domain\aggregate\trip_aggregate.py的覆盖率很高的测试。在测试不通过时，修改被测试的代码，使得测试通过，而不是修改测试让它通过（这是先射箭后画靶子的愚蠢行为）。
-
 在travel_sharing_app_v0\backend\tests\unit\database\repository 中分别用pytest创建测试travel_sharing_app_v0\backend\src\app_social\infrastructure\database\repository_impl\conversation_repository_impl.py、travel_sharing_app_v0\backend\src\app_social\infrastructure\database\repository_impl\post_repository_impl.py、travel_sharing_app_v0\backend\src\app_travel\infrastructure\database\repository_impl\trip_repository_impl.py的覆盖率很高的测试。在测试不通过时，修改被测试的代码，使得测试通过，而不是修改测试让它通过（这是先射箭后画靶子的愚蠢行为）。
 
 
