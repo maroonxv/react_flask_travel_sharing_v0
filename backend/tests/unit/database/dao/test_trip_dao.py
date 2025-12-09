@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../src')))
 from datetime import date, datetime
 from app_travel.infrastructure.database.persistent_model.trip_po import TripPO, TripMemberPO
 from app_travel.infrastructure.database.dao_impl.sqlalchemy_trip_dao import SqlAlchemyTripDao

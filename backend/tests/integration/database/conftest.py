@@ -1,5 +1,6 @@
 import sys
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 import pytest
 from dotenv import load_dotenv
 from sqlalchemy import create_engine

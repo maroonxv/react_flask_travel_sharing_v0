@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../src')))
 from unittest.mock import Mock, MagicMock, patch
 
 from app_social.infrastructure.database.repository_impl.post_repository_impl import PostRepositoryImpl

@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../src')))
 import json
 from datetime import datetime, timedelta
 from app_social.infrastructure.database.persistent_model.message_po import MessagePO

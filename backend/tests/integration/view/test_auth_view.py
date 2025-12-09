@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 import json
 from flask import Flask, session
 from unittest.mock import patch

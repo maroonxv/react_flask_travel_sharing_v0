@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 import uuid
 from app_auth.domain.entity.user_entity import User
 from app_auth.domain.value_objects.user_value_objects import UserId, Email, Username, HashedPassword, UserRole, UserProfile

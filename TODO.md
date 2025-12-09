@@ -66,10 +66,31 @@ PS D:\学业\CODE_PROJECTS\Trae\数据库及计网课设\travel_sharing>
 
 
 
-接下来，我要搭建整个项目的React.js前端部分了。请根据目前项目已实现的代码，帮我完善以下提示词，要求细致地描述每个页面的功能以及美学风格（我希望使用暗色系，但是颜色可以丰富一点）
+I need you to analyze my current backend codebase to prepare for the frontend development phase. Based on the existing implementation, please expand and refine the following prompt. The goal is to generate a detailed "Master Prompt" that I will use to build the React.js frontend.
 
-注意只是完善以下提示词，不是执行以下提示词：
+Your Task:
+Review the project structure, specifically the Domain-Driven Design (DDD) implementation across app_auth, app_social, and app_travel. Then, rewrite the draft prompt below to be extremely specific.
 
-提示词：“这是一个使用领域驱动设计原则设计的项目。项目描述在  。分成app_auth, app_social和app_travel三个app，每一个app是一个限界上下文。请编写整个项目的React.js前端页面，前端与后端通过RESTful API进行通信。
-要求：
-......“
+The Refined Prompt Must Include:
+
+Project Context: A precise summary of the project capabilities derived from the code you see (e.g., specific API endpoints available in each bounded context).
+
+Tech Stack: React.js, interacting with the backend via RESTful APIs.
+
+Design System: A "Dark Mode" aesthetic that is vibrant, not dull. Specify a color palette that uses deep backgrounds (e.g., charcoal, midnight blue) contrasted with rich, neon-like accents (e.g., electric purple, teal, sunset orange) to differentiate the three apps/contexts visually.
+
+Page-by-Page Specifications: detailed requirements for every necessary page based on the backend logic. For example:
+
+Auth: Login/Register forms with validation matching backend constraints.
+
+Social: Feed layouts, profile views, and interaction components (likes/comments) supported by the current models.
+
+Travel: Itinerary planners or booking views that utilize the specific data structures defined in app_travel.
+
+Draft Prompt to Refine:
+"This is a project designed using Domain-Driven Design principles. It is divided into app_auth, app_social, and app_travel, where each app is a bounded context. Please write the React.js frontend pages for the entire project. The frontend communicates with the backend via RESTful APIs."
+
+Output format:
+Please provide only the refined, comprehensive prompt text, ready for me to execute.
+
+

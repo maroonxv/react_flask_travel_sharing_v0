@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 import uuid
 from datetime import date, datetime
 from app_travel.domain.aggregate.trip_aggregate import Trip

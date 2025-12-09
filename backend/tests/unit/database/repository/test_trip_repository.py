@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../../src')))
 from unittest.mock import Mock, MagicMock
 
 from app_travel.infrastructure.database.repository_impl.trip_repository_impl import TripRepositoryImpl

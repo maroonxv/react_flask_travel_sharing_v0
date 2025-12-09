@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 from app_travel.infrastructure.external_service.gaode_geo_service_impl import GaodeGeoServiceImpl
 from app_travel.domain.value_objects.travel_value_objects import Location
 
