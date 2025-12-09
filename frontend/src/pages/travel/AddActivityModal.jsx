@@ -83,9 +83,14 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
                         onChange={e => setFormData({ ...formData, cost: e.target.value })}
                     />
 
-                    <Button type="submit" variant="travel" disabled={loading}>
-                        {loading ? '添加中...' : '添加活动'}
-                    </Button>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                        <Button type="button" variant="secondary" onClick={onClose}>
+                            取消
+                        </Button>
+                        <Button type="submit" variant="travel" disabled={loading}>
+                            {loading ? '添加中...' : '添加活动'}
+                        </Button>
+                    </div>
                 </form>
             </Card>
         </div>

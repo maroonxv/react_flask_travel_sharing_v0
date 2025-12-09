@@ -2,6 +2,14 @@
 
 本项目是一个基于前后端分离架构的旅行信息分享平台，旨在为用户提供旅行前的攻略制定、旅行中的路线管理以及旅行后的资源分享与社交互动功能。
 
+## 📋 功能列表与要求
+
+本项目实现了以下核心需求：
+
+1.  **旅行前**：攻略收集、筛选、队伍组建（添加成员）。
+2.  **旅行中**：路线云备份、队伍管理。
+3.  **旅行后**：资源分享、浏览动态、好友互动。
+
 ## ✨ 项目特色
 
 *   **前后端分离**：前端采用 React.js，后端采用 Python Flask。
@@ -90,11 +98,8 @@ cd travel_sharing_app_v0/backend
 # 安装依赖
 pip install -r requirements.txt
 
-# 初始化数据库数据 (可选，视情况而定)
-# python src/tests/db_scripts/init_db_data.py
-
 # 启动应用
-python src/app.py
+travel_sharing_app_v0\backend\.venv\Scripts\python.exe src/app.py
 ```
 
 ### 3. 启动前端服务器
@@ -112,13 +117,4 @@ npm run dev
 
 访问本地地址：`http://localhost:5173` (默认 Vite 端口)
 
-## 📋 功能列表与要求
 
-本项目实现了以下核心需求：
-
-1.  **客户端应用**：编写能够支持旅行全周期的 Web 客户端。
-2.  **Web 服务器**：使用 Python Flask 开发 RESTful API 服务器。
-3.  **后台数据库**：使用 MySQL 存储用户信息、旅行数据及社交内容。
-4.  **旅行前**：攻略收集、筛选、队伍组建（添加成员）。
-5.  **旅行中**：路线云备份、队伍管理。
-6.  **旅行后**：资源分享、浏览动态、好友互动。

@@ -52,9 +52,14 @@ const AddMemberModal = ({ tripId, onClose, onSuccess }) => {
                     
                     {error && <div className={styles.error} style={{color: 'red', fontSize: '0.9rem'}}>{error}</div>}
 
-                    <Button type="submit" variant="travel" disabled={loading}>
-                        {loading ? '添加中...' : '添加成员'}
-                    </Button>
+                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                        <Button type="button" variant="secondary" onClick={onClose}>
+                            取消
+                        </Button>
+                        <Button type="submit" variant="travel" disabled={loading}>
+                            {loading ? '添加中...' : '添加成员'}
+                        </Button>
+                    </div>
                 </form>
             </Card>
         </div>

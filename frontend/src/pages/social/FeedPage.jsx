@@ -25,7 +25,11 @@ const FeedPage = () => {
 
             const newPosts = Array.isArray(data) ? data : (data.posts || []);
 
-            setPosts(prev => [...prev, ...newPosts]);
+            setPosts(prev => {
+                const existingIds = new Set(prev.map(p => p.id));
+                const uniqueNewPosts = newPosts.filter(p => !existingIds.has(p.id));
+                return [...prev, ...uniqueNewPosts];
+            });
             setOffset(prev => prev + LIMIT);
 
             if (newPosts.length < LIMIT) {

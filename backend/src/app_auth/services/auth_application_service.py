@@ -11,7 +11,7 @@ from app_auth.domain.domain_service.auth_service import AuthService as DomainAut
 from app_auth.domain.demand_interface.i_user_repository import IUserRepository
 from app_auth.domain.entity.user_entity import User
 from app_auth.domain.value_objects.user_value_objects import (
-    Username, Email, Password, UserRole, UserId
+    Username, Email, Password, UserRole, UserId, UserProfile
 )
 from shared.event_bus import EventBus
 
@@ -154,19 +154,7 @@ class AuthApplicationService:
         old_password: str,
         new_password: str
     ) -> bool:
-        """修改密码
-        
-        Args:
-            user_id: 用户ID (通常来自当前登录用户)
-            old_password: 旧密码
-            new_password: 新密码
-            
-        Returns:
-            是否修改成功
-            
-        Raises:
-            ValueError: 密码验证失败
-        """
+        """修改密码"""
         user = self._user_repo.find_by_id(UserId(user_id))
         if not user:
             raise ValueError(f"User with ID {user_id} not found")
@@ -180,6 +168,40 @@ class AuthApplicationService:
         self._publish_events(user)
         
         return True
+
+    def update_profile(
+        self,
+        user_id: str,
+        location: Optional[str] = None,
+        bio: Optional[str] = None,
+        avatar_url: Optional[str] = None
+    ) -> User:
+        """更新个人资料"""
+        user = self._user_repo.find_by_id(UserId(user_id))
+        if not user:
+            raise ValueError(f"User with ID {user_id} not found")
+
+        # 获取当前 profile 属性
+        current_profile = user.profile
+        
+        # 构建新 profile
+        new_location = location if location is not None else current_profile.location
+        new_bio = bio if bio is not None else current_profile.bio
+        new_avatar_url = avatar_url if avatar_url is not None else current_profile.avatar_url
+        
+        new_profile_vo = UserProfile(
+            avatar_url=new_avatar_url,
+            bio=new_bio,
+            location=new_location
+        )
+        
+        user.update_profile(new_profile_vo)
+        
+        self._user_repo.save(user)
+        self._publish_events(user)
+        
+        return user
+
         
     def request_password_reset(self, email: str) -> None:
         """请求密码重置"""

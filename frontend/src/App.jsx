@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ProfilePage from './pages/auth/ProfilePage';
+import ManageProfilePage from './pages/auth/ManageProfilePage';
 
 // Pages - Social
 import FeedPage from './pages/social/FeedPage';
@@ -47,6 +48,7 @@ function App() {
 
               {/* Profile */}
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<ManageProfilePage />} />
             </Route>
           </Route>
 

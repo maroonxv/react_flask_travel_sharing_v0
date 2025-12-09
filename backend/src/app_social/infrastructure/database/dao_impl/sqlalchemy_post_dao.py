@@ -1,6 +1,6 @@
 from typing import List, Optional
 import json
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import select, delete, desc, and_, exists, func, or_
 
 from app_social.infrastructure.database.dao_interface.i_post_dao import IPostDao
@@ -15,10 +15,10 @@ class SqlAlchemyPostDao(IPostDao):
     def _get_base_query(self):
         """获取基础查询，包含预加载配置"""
         return select(PostPO).options(
-            joinedload(PostPO.comments),
-            joinedload(PostPO.likes),
-            joinedload(PostPO.images),
-            joinedload(PostPO.tags)
+            selectinload(PostPO.comments),
+            selectinload(PostPO.likes),
+            selectinload(PostPO.images),
+            selectinload(PostPO.tags)
         )
 
     def find_by_id(self, post_id: str) -> Optional[PostPO]:

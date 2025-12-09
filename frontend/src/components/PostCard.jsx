@@ -14,9 +14,14 @@ const PostCard = ({ post }) => {
                 <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
             </div>
 
-            {post.image_url && (
+            {post.media_urls && post.media_urls.length > 0 && (
                 <div className={styles.imageContainer}>
-                    <img src={post.image_url} alt={post.title} className={styles.image} />
+                    <img src={post.media_urls[0]} alt={post.title} className={styles.image} />
+                    {post.media_urls.length > 1 && (
+                        <div className={styles.imageCount}>
+                            +{post.media_urls.length - 1}
+                        </div>
+                    )}
                 </div>
             )}
 

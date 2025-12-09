@@ -209,6 +209,33 @@ def request_password_reset():
         print(f"Request password reset error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
+@auth_bp.route('/me/profile', methods=['PUT'])
+def update_profile():
+    """更新个人资料"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+        
+    data = request.get_json()
+    service = get_auth_service()
+    
+    try:
+        user = service.update_profile(
+            user_id=user_id,
+            location=data.get('location'),
+            bio=data.get('bio'),
+            avatar_url=data.get('avatar_url')
+        )
+        g.session.commit()
+        return jsonify(serialize_user(user)), 200
+    except ValueError as e:
+        g.session.rollback()
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        g.session.rollback()
+        print(f"Update profile error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     """重置密码"""

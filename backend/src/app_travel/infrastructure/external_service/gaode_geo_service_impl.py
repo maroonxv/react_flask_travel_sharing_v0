@@ -89,6 +89,44 @@ class GaodeGeoServiceImpl(IGeoService):
             print(f"Calculate distance error: {e}")
             return 0.0
 
+    def _get_city_info(self, latitude: float, longitude: float) -> str:
+        """获取坐标所在的城市信息（用于公交规划）
+        优先返回 adcode，其次 city 名称，再次 province 名称
+        """
+        url = f"{self.base_url}/geocode/regeo"
+        params = {
+            "key": self.api_key,
+            "location": f"{longitude},{latitude}",
+            "output": "json"
+        }
+        try:
+            response = requests.get(url, params=params)
+            data = response.json()
+            
+            if data.get("status") == "1" and data.get("regeocode"):
+                comp = data["regeocode"].get("addressComponent", {})
+                
+                # 优先使用 adcode (区域编码)
+                if comp.get("adcode"):
+                    return str(comp["adcode"])
+                
+                # 其次尝试 city
+                city = comp.get("city")
+                if isinstance(city, str) and city:
+                    return city
+                elif isinstance(city, list) and len(city) > 0: # 某些情况 city 可能是列表
+                    return str(city[0])
+                    
+                # 如果 city 为空（如直辖市），使用 province
+                province = comp.get("province")
+                if isinstance(province, str) and province:
+                    return province
+                    
+            return "北京" # 默认降级
+        except Exception as e:
+            print(f"Get city info error: {e}")
+            return "北京"
+
     def get_route(
         self,
         origin: Location,
@@ -129,9 +167,10 @@ class GaodeGeoServiceImpl(IGeoService):
         }
         
         if mode == "transit":
-            # 公交路径规划需要城市信息，这里简单处理，假设同城或必填
-            # 实际应用中可能需要先通过逆地理编码获取城市代码
-            params["city"] = "北京" # 示例默认值，实际应动态获取
+            # 公交路径规划需要城市信息
+            # 通过逆地理编码获取起点城市代码
+            city_info = self._get_city_info(origin.latitude, origin.longitude)
+            params["city"] = city_info
             
         try:
             response = requests.get(url, params=params)

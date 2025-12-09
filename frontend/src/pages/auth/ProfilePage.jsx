@@ -1,36 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './ProfilePage.module.css';
 import Button from '../../components/Button';
-import Input from '../../components/Input';
 import Card from '../../components/Card';
-import { User, MapPin, Mail, Shield } from 'lucide-react';
+import PostCard from '../../components/PostCard';
+import TripCard from '../../components/TripCard';
+import { getUserPosts } from '../../api/social';
+import { getUserTrips } from '../../api/travel';
+import { User, MapPin, Mail, Shield, Settings } from 'lucide-react';
 
 const ProfilePage = () => {
-    const { user, updatePassword } = useAuth();
-    const [passData, setPassData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    const [message, setMessage] = useState({ type: '', text: '' });
-    const [loading, setLoading] = useState(false);
+    const { user } = useAuth();
+    const [posts, setPosts] = useState([]);
+    const [trips, setTrips] = useState([]);
 
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-        if (passData.newPassword !== passData.confirmPassword) {
-            setMessage({ type: 'error', text: '新密码不匹配' });
-            return;
+    useEffect(() => {
+        if (user?.id) {
+            const fetchData = async () => {
+                try {
+                    const [postsData, tripsData] = await Promise.all([
+                        getUserPosts(user.id),
+                        getUserTrips(user.id)
+                    ]);
+                    setPosts(Array.isArray(postsData) ? postsData : (postsData.posts || []));
+                    setTrips(tripsData || []);
+                } catch (error) {
+                    console.error("Failed to fetch user data", error);
+                }
+            };
+            fetchData();
         }
-
-        setLoading(true);
-        setMessage({ type: '', text: '' });
-        try {
-            await updatePassword(passData.oldPassword, passData.newPassword);
-            setMessage({ type: 'success', text: '密码修改成功' });
-            setPassData({ oldPassword: '', newPassword: '', confirmPassword: '' });
-        } catch (error) {
-            setMessage({ type: 'error', text: '密码修改失败' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [user]);
 
     if (!user) return <div>加载中...</div>;
 
@@ -44,9 +45,16 @@ const ProfilePage = () => {
                     <h1>{user.username}</h1>
                     <p className={styles.role}>{user.role}</p>
                 </div>
+                <div style={{ marginLeft: 'auto' }}>
+                    <Link to="/profile/edit">
+                        <Button variant="secondary" icon={<Settings size={18} />}>
+                            管理个人资料
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
-            <div className={styles.grid}>
+            <div className={styles.grid} style={{ gridTemplateColumns: '1fr', marginBottom: '2rem' }}>
                 <Card title="个人信息" className={styles.infoCard}>
                     <div className={styles.infoRow}>
                         <Mail size={18} />
@@ -73,43 +81,29 @@ const ProfilePage = () => {
                         </div>
                     )}
                 </Card>
-
-                <Card title="修改密码" className={styles.passwordCard}>
-                    <form onSubmit={handlePasswordChange}>
-                        <Input
-                            label="当前密码"
-                            type="password"
-                            value={passData.oldPassword}
-                            onChange={(e) => setPassData({ ...passData, oldPassword: e.target.value })}
-                            required
-                        />
-                        <Input
-                            label="新密码"
-                            type="password"
-                            value={passData.newPassword}
-                            onChange={(e) => setPassData({ ...passData, newPassword: e.target.value })}
-                            required
-                        />
-                        <Input
-                            label="确认新密码"
-                            type="password"
-                            value={passData.confirmPassword}
-                            onChange={(e) => setPassData({ ...passData, confirmPassword: e.target.value })}
-                            required
-                        />
-
-                        {message.text && (
-                            <div className={`${styles.message} ${styles[message.type]}`}>
-                                {message.text}
-                            </div>
-                        )}
-
-                        <Button type="submit" variant="primary" disabled={loading} style={{ width: '100%', marginTop: '1rem' }}>
-                            {loading ? '更新中...' : '更新密码'}
-                        </Button>
-                    </form>
-                </Card>
             </div>
+
+            {posts.length > 0 && (
+                <>
+                    <h2 className={styles.sectionTitle}>我的动态</h2>
+                    <div className={styles.itemsGrid}>
+                        {posts.map(post => (
+                            <PostCard key={post.id} post={post} />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {trips.length > 0 && (
+                <>
+                    <h2 className={styles.sectionTitle}>我的旅行</h2>
+                    <div className={styles.itemsGrid}>
+                        {trips.map(trip => (
+                            <TripCard key={trip.id} trip={trip} />
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
     );
 };

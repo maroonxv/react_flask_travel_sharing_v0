@@ -119,9 +119,14 @@ const MyTripsPage = () => {
                                 value={newTrip.description}
                                 onChange={e => setNewTrip({ ...newTrip, description: e.target.value })}
                             />
-                            <Button type="submit" variant="travel" style={{ marginTop: '1rem' }}>
-                                创建旅行
-                            </Button>
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                                <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
+                                    取消
+                                </Button>
+                                <Button type="submit" variant="travel">
+                                    创建旅行
+                                </Button>
+                            </div>
                         </form>
                     </Card>
                 </div>

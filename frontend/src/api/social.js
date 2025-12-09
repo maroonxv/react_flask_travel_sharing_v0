@@ -5,6 +5,11 @@ export const getFeed = async (limit = 20, offset = 0) => {
     return response.data;
 };
 
+export const getUserPosts = async (userId, limit = 20, offset = 0) => {
+    const response = await client.get(`/social/users/${userId}/posts?limit=${limit}&offset=${offset}`);
+    return response.data;
+};
+
 export const createPost = async (formData) => {
     // formData handles multipart/form-data for images
     const response = await client.post('/social/posts', formData, {
