@@ -13,7 +13,10 @@ from app_social.infrastructure.database.persistent_model.post_po import PostPO, 
 from app_social.infrastructure.database.persistent_model.conversation_po import ConversationPO
 from app_social.infrastructure.database.persistent_model.message_po import MessagePO
 # Travel
-from app_travel.infrastructure.database.persistent_model.trip_po import TripPO, TripMemberPO, TripDayPO, ActivityPO
+from app_travel.infrastructure.database.persistent_model.trip_po import TripPO, TripMemberPO, TripDayPO, ActivityPO, TransitPO
+from app_travel.view.travel_view import travel_bp
+from app_social.view.social_view import social_bp
+from app_auth.view.auth_view import auth_bp
 
 def create_app():
     # 配置静态文件目录
@@ -32,6 +35,11 @@ def create_app():
     print("Initializing database tables...")
     Base.metadata.create_all(bind=engine)
     print("Database tables initialized.")
+    
+    # 注册蓝图
+    app.register_blueprint(travel_bp)
+    app.register_blueprint(social_bp)
+    app.register_blueprint(auth_bp)
     
     @app.route('/health')
     def health_check():

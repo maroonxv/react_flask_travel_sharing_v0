@@ -14,6 +14,7 @@ from app_auth.domain.value_objects.user_value_objects import (
 )
 from app_auth.domain.demand_interface.i_user_repository import IUserRepository
 from app_auth.domain.demand_interface.i_password_hasher import IPasswordHasher
+from app_auth.domain.demand_interface.i_email_service import IEmailService
 
 
 class AuthService:
@@ -26,10 +27,12 @@ class AuthService:
     def __init__(
         self,
         user_repo: IUserRepository,
-        password_hasher: IPasswordHasher
+        password_hasher: IPasswordHasher,
+        email_service: IEmailService
     ):
         self._user_repo = user_repo
         self._password_hasher = password_hasher
+        self._email_service = email_service
     
     def register_user(
         self,
@@ -131,20 +134,38 @@ class AuthService:
         )
         self._user_repo.save(user)
     
-    def request_password_reset(self, email: Email) -> Optional[User]:
+    # 演示用的 Mock Token
+    MOCK_RESET_TOKEN = "MOCK-RESET-TOKEN-12345"
+    
+    def request_password_reset(self, email: Email) -> None:
         """请求密码重置
         
-        查找用户并返回，由应用层生成重置令牌。
+        查找用户，生成令牌（简化为直接发送通知），并发送邮件。
         
         Args:
             email: 用户邮箱
             
-        Returns:
-            存在则返回用户实例，不存在返回 None
+        Raises:
+            ValueError: 用户不存在
         """
-        return self._user_repo.find_by_email(email)
+        user = self._user_repo.find_by_email(email)
+        if not user:
+            # 为了安全，通常不应明确提示用户不存在，但演示项目可以简化
+            raise ValueError(f"User with email '{email.value}' not found")
+            
+        # 在实际项目中，这里应该生成一个一次性 Token，并保存到数据库或 Redis
+        # 这里演示项目简化为直接发送邮件通知
+        reset_token = self.MOCK_RESET_TOKEN
+        
+        self._email_service.send_email(
+            to=email.value,
+            subject="Password Reset Request",
+            content=f"Hello {user.username.value},\n\n"
+                    f"You requested a password reset. Use this token: {reset_token}\n"
+                    f"Or just imagine clicking a link."
+        )
     
-    def reset_password(self, user: User, new_password: Password) -> None:
+    def reset_password(self, user: User, new_password: Password, token: str) -> None:
         """重置密码
         
         由应用层验证令牌后调用。
@@ -152,6 +173,14 @@ class AuthService:
         Args:
             user: 用户实例
             new_password: 新密码
+            token: 重置令牌
+            
+        Raises:
+            ValueError: 令牌无效
         """
+        # 验证 Token (Mock)
+        if token != self.MOCK_RESET_TOKEN:
+            raise ValueError("Invalid password reset token")
+            
         user.reset_password(new_password, self._password_hasher)
         self._user_repo.save(user)

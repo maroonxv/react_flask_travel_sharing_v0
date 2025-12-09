@@ -1,9 +1,9 @@
 """
 密码哈希器实现
 
-使用 passlib 库实现 IPasswordHasher 接口。
+使用 bcrypt 库实现 IPasswordHasher 接口。
 """
-from passlib.hash import bcrypt
+import bcrypt
 
 from app_auth.domain.demand_interface.i_password_hasher import IPasswordHasher
 from app_auth.domain.value_objects.user_value_objects import Password, HashedPassword
@@ -21,8 +21,13 @@ class PasswordHasherImpl(IPasswordHasher):
         Returns:
             哈希后的密码
         """
-        hashed = bcrypt.hash(password.value)
-        return HashedPassword(value=hashed)
+        # bcrypt.hashpw 需要 bytes
+        pwd_bytes = password.value.encode('utf-8')
+        salt = bcrypt.gensalt()
+        hashed_bytes = bcrypt.hashpw(pwd_bytes, salt)
+        
+        # 转换回 string 存储
+        return HashedPassword(value=hashed_bytes.decode('utf-8'))
     
     def verify(self, password: Password, hashed: HashedPassword) -> bool:
         """验证密码是否匹配
@@ -34,4 +39,7 @@ class PasswordHasherImpl(IPasswordHasher):
         Returns:
             是否匹配
         """
-        return bcrypt.verify(password.value, hashed.value)
+        pwd_bytes = password.value.encode('utf-8')
+        hashed_bytes = hashed.value.encode('utf-8')
+        
+        return bcrypt.checkpw(pwd_bytes, hashed_bytes)
