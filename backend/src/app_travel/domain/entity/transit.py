@@ -4,7 +4,7 @@ Transit 实体 - TripDay 的子实体
 表示两个活动之间的移动/交通。
 """
 from dataclasses import dataclass
-from datetime import time, datetime, date
+from datetime import time, datetime, date, timedelta
 from typing import Optional
 import uuid
 

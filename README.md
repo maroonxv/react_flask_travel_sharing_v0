@@ -9,3 +9,18 @@
 4)旅游前的攻略收集和筛选、队伍组建。
 5)旅游中的路线云备份和队伍管理。
 6)旅游后资源分享和浏览、好友聊天互动等。
+
+
+运行项目：
+运行后端服务器：
+travel_sharing_app_v0\backend\.venv\Scripts\python.exe travel_sharing_app_v0\backend\src\app.py
+运行前端服务器
+cd travel_sharing_app_v0\frontend
+npm run dev
+
+
+
+后端结构：
+
+前端结构：
+

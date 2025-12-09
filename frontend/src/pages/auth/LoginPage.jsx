@@ -23,7 +23,8 @@ const LoginPage = () => {
             navigate('/social');
         } catch (err) {
             console.error('Login failed', err);
-            setError('Invalid email or password');
+            const errMsg = err.response?.data?.error || err.message || 'Login failed. Please check your credentials.';
+            setError(errMsg);
         } finally {
             setLoading(false);
         }

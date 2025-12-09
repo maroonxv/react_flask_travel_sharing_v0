@@ -101,6 +101,7 @@ def register():
         return jsonify(serialize_user(user)), 201
     except ValueError as e:
         g.session.rollback()
+        print(f"Registration ValueError: {e}")
         return jsonify({'error': str(e)}), 400
     except Exception as e:
         g.session.rollback()

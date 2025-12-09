@@ -4,7 +4,8 @@ import { getTrip } from '../../api/travel';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import AddActivityModal from './AddActivityModal';
-import { Calendar, Users, DollarSign, MapPin, Clock, ArrowRight, ArrowLeft } from 'lucide-react';
+import AddMemberModal from './AddMemberModal';
+import { Calendar, Users, DollarSign, MapPin, Clock, ArrowRight, ArrowLeft, Plus } from 'lucide-react';
 import styles from './TripDetail.module.css';
 
 const TripDetailPage = () => {
@@ -15,6 +16,7 @@ const TripDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [activeDayIdx, setActiveDayIdx] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showMemberModal, setShowMemberModal] = useState(false);
 
     useEffect(() => {
         fetchTrip();
@@ -64,10 +66,18 @@ const TripDetailPage = () => {
                     </div>
                     <div className={styles.metaBlock}>
                         <h3>Members</h3>
-                        <p style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} />
-                            {trip.member_count}
-                        </p>
+                            <span>{trip.member_count}</span>
+                            <button 
+                                onClick={() => setShowMemberModal(true)}
+                                className={styles.iconBtn}
+                                style={{ marginLeft: '0.5rem', cursor: 'pointer', background: 'none', border: 'none', color: '#3b82f6' }}
+                                title="Add Member"
+                            >
+                                <Plus size={18} />
+                            </button>
+                        </div>
                     </div>
                     <div className={styles.metaBlock}>
                         <h3>Status</h3>
@@ -155,6 +165,14 @@ const TripDetailPage = () => {
                     tripId={id}
                     dayIndex={activeDayIdx} // Assuming backend uses 0-based index
                     onClose={() => setShowAddModal(false)}
+                    onSuccess={fetchTrip}
+                />
+            )}
+
+            {showMemberModal && (
+                <AddMemberModal
+                    tripId={id}
+                    onClose={() => setShowMemberModal(false)}
                     onSuccess={fetchTrip}
                 />
             )}

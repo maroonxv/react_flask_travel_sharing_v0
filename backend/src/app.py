@@ -23,6 +23,7 @@ def create_app():
     # static_url_path='/static' 表示 URL 前缀
     # static_folder='static' 表示实际文件夹路径（相对于 app.py 所在目录）
     app = Flask(__name__, static_url_path='/static', static_folder='static')
+    app.secret_key = os.urandom(24)  # 配置密钥以支持 session
     CORS(app)
     
     # 确保上传目录存在
@@ -49,4 +50,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

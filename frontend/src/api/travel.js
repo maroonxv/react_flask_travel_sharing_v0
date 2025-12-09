@@ -26,3 +26,8 @@ export const addActivity = async (tripId, dayIndex, activityData) => {
     const response = await client.post(`/travel/trips/${tripId}/days/${dayIndex}/activities`, activityData);
     return response.data;
 };
+
+export const addMember = async (tripId, userId, role = 'member') => {
+    const response = await client.post(`/travel/trips/${tripId}/members`, { user_id: userId, role });
+    return response.data;
+};

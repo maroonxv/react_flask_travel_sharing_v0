@@ -158,8 +158,10 @@ def create_trip():
             budget_currency=data.get('budget_currency', 'CNY'),
             visibility=data.get('visibility', 'private')
         )
+        g.session.commit()
         return jsonify(serialize_trip(trip)), 201
     except ValueError as e:
+        print(f"Create trip ValueError: {e}")
         return jsonify({'error': str(e)}), 400
     except Exception as e:
         traceback.print_exc()
@@ -195,6 +197,7 @@ def update_trip(trip_id):
         if not trip:
             return jsonify({'error': 'Trip not found'}), 404
             
+        g.session.commit()
         return jsonify(serialize_trip(trip))
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -208,6 +211,7 @@ def delete_trip(trip_id):
     if not success:
         return jsonify({'error': 'Trip not found'}), 404
         
+    g.session.commit()
     return '', 204
 
 @travel_bp.route('/trips/<trip_id>/members', methods=['POST'])
@@ -233,6 +237,7 @@ def add_member(trip_id):
         if not trip:
             return jsonify({'error': 'Trip not found'}), 404
             
+        g.session.commit()
         return jsonify(serialize_trip(trip)), 201
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -297,6 +302,7 @@ def add_activity(trip_id, day_index):
              # 若 index 越界会抛出 ValueError
              return jsonify({'error': 'Trip not found'}), 404
 
+        g.session.commit()
         return jsonify(serialize_transit_result(result)), 201
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -332,6 +338,7 @@ def modify_activity(trip_id, day_index, activity_id):
         if result is None:
             return jsonify({'error': 'Trip or Activity not found'}), 404
             
+        g.session.commit()
         return jsonify(serialize_transit_result(result))
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
@@ -349,6 +356,7 @@ def remove_activity(trip_id, day_index, activity_id):
             # 这里如果不报错，说明可能是静默失败或无需计算交通
             return jsonify({'message': 'Activity removed (or not found)'}), 200
             
+        g.session.commit()
         return jsonify(serialize_transit_result(result))
     except ValueError as e:
         return jsonify({'error': str(e)}), 400

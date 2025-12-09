@@ -12,7 +12,7 @@ const RegisterPage = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'traveler' // default role
+        role: 'user' // default role
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -43,8 +43,8 @@ const RegisterPage = () => {
             navigate('/social');
         } catch (err) {
             console.error('Registration failed', err);
-            // Ideally parse server error
-            setError('Registration failed. Please try again.');
+            const errMsg = err.response?.data?.error || err.message || 'Registration failed. Please try again.';
+            setError(errMsg);
         } finally {
             setLoading(false);
         }

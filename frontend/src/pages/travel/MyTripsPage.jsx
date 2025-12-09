@@ -41,13 +41,18 @@ const MyTripsPage = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            await createTrip(newTrip);
+            const payload = { ...newTrip, creator_id: user.id };
+            if (!payload.budget_amount) {
+                delete payload.budget_amount;
+            }
+            await createTrip(payload);
             setShowModal(false);
             setNewTrip({ name: '', start_date: '', end_date: '', budget_amount: '', description: '' });
             loadTrips(); // Refresh
         } catch (error) {
             console.error("Failed to create trip", error);
-            alert("Failed to create trip");
+            const errMsg = error.response?.data?.error || error.message || "Unknown error";
+            alert(`Failed to create trip: ${errMsg}`);
         }
     };
 
