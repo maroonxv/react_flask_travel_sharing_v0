@@ -339,7 +339,7 @@ class TravelService:
         self._trip_repository.save(trip)
         self._publish_events(trip)
         
-        return result
+        return result or TransitCalculationResult()
     
     def modify_activity(
         self,
@@ -384,8 +384,8 @@ class TravelService:
         self._trip_repository.save(trip)
         self._publish_events(trip)
         
-        return result
-    
+        return result or TransitCalculationResult()
+
     def remove_activity(
         self,
         trip_id: str,
@@ -403,8 +403,8 @@ class TravelService:
         self._trip_repository.save(trip)
         self._publish_events(trip)
         
-        return result
-    
+        return result or TransitCalculationResult()
+
     def update_day_itinerary(
         self,
         trip_id: str,
@@ -452,7 +452,7 @@ class TravelService:
         self._trip_repository.save(trip)
         self._publish_events(trip)
         
-        return result
+        return result or TransitCalculationResult()
     
     # ==================== 地理编码（无状态代理）====================
     

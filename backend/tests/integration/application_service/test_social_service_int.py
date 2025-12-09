@@ -1,6 +1,8 @@
 import pytest
 import uuid
 import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 import shutil
 from unittest.mock import patch, MagicMock
 from werkzeug.datastructures import FileStorage

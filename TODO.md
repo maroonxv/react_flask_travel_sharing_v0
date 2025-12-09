@@ -55,6 +55,16 @@
 
 
 
+修正travel_sharing_app_v0\backend\tests中所有测试脚本中的路径错误，特别是类似这样的：
+PS D:\学业\CODE_PROJECTS\Trae\数据库及计网课设\travel_sharing> travel_sharing_app_v0\backend\.venv\Scripts\python.exe travel_sharing_app_v0\backend\tests\integration\application_service\test_social_service_int.py
+Traceback (most recent call last):
+  File "D:\学业\CODE_PROJECTS\Trae\数据库及计网课设\travel_sharing\travel_sharing_app_v0\backend\tests\integration\application_service\test_social_service_int.py", line 9, in <module>
+    from app_social.services.social_service import SocialService
+ModuleNotFoundError: No module named 'app_social'
+PS D:\学业\CODE_PROJECTS\Trae\数据库及计网课设\travel_sharing>
+
+
+
 
 接下来，我要搭建整个项目的React.js前端部分了。请根据目前项目已实现的代码，帮我完善以下提示词，要求细致地描述每个页面的功能以及美学风格（我希望使用暗色系，但是颜色可以丰富一点）
 

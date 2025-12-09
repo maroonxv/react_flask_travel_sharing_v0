@@ -1,4 +1,7 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src')))
 from flask import Flask
 from app_auth.services.auth_application_service import AuthApplicationService
 from app_auth.domain.domain_service.auth_service import AuthService as DomainAuthService

@@ -76,10 +76,10 @@ def serialize_trip(trip: Trip) -> dict:
 def serialize_trip_day(day) -> dict:
     """序列化 TripDay"""
     return {
-        'day_index': day.day_index, # 0-based
+        'day_index': day.day_number - 1, # 0-based
         'day_number': day.day_number, # 1-based
         'date': day.date.isoformat(),
-        'weekday': day.weekday, # 0=Monday
+        'weekday': day.date.weekday(), # 0=Monday
         'theme': day.theme,
         'notes': day.notes,
         'activities': [serialize_activity(a) for a in day.activities],
@@ -104,8 +104,7 @@ def serialize_activity(activity) -> dict:
             'amount': float(activity.cost.amount),
             'currency': activity.cost.currency
         } if activity.cost else None,
-        'notes': activity.notes,
-        'status': activity.status.value
+        'notes': activity.notes
     }
 
 def serialize_transit(transit) -> dict:
@@ -113,13 +112,13 @@ def serialize_transit(transit) -> dict:
     return {
         'from_activity_id': transit.from_activity_id,
         'to_activity_id': transit.to_activity_id,
-        'mode': transit.mode.value,
+        'mode': transit.transport_mode.value,
         'distance_meters': transit.route_info.distance_meters,
         'duration_seconds': transit.route_info.duration_seconds,
         'cost': {
-            'amount': float(transit.cost.amount),
-            'currency': transit.cost.currency
-        } if transit.cost else None,
+            'amount': float(transit.estimated_cost.estimated_cost.amount),
+            'currency': transit.estimated_cost.estimated_cost.currency
+        } if transit.estimated_cost else None,
         # polyline 可能很长，视前端需求决定是否返回
         'polyline': transit.route_info.polyline 
     }
