@@ -21,7 +21,7 @@ const TripCard = ({ trip }) => {
                     </span>
                 </div>
 
-                <p className={styles.description}>{trip.description || 'No description provided.'}</p>
+                <p className={styles.description}>{trip.description || '暂无描述。'}</p>
 
                 <div className={styles.meta}>
                     <div className={styles.metaItem}>
@@ -30,11 +30,11 @@ const TripCard = ({ trip }) => {
                     </div>
                     <div className={styles.metaItem}>
                         <Users size={16} />
-                        <span>{trip.member_count || 1} Members</span>
+                        <span>{trip.member_count || 1} 成员</span>
                     </div>
                     <div className={styles.metaItem}>
                         <DollarSign size={16} />
-                        <span>${trip.budget_amount || 0}</span>
+                        <span>￥{trip.budget_amount || 0}</span>
                     </div>
                 </div>
 

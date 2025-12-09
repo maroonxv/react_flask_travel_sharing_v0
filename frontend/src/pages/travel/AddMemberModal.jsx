@@ -31,29 +31,29 @@ const AddMemberModal = ({ tripId, onClose, onSuccess }) => {
 
     return (
         <div className={styles.modalOverlay}>
-            <Card className={styles.modalContent} title="Add Member">
+            <Card className={styles.modalContent} title="添加成员">
                 <button className={styles.closeBtn} onClick={onClose}>
                     <X size={20} />
                 </button>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div className={styles.infoText}>
                         <small style={{ color: '#64748b', marginBottom: '0.5rem', display: 'block' }}>
-                            Please enter the User ID of the member you want to add.
+                            请输入要添加成员的用户 ID。
                         </small>
                     </div>
                     
                     <Input
-                        label="User ID"
+                        label="用户 ID"
                         value={userId}
                         onChange={e => setUserId(e.target.value)}
-                        placeholder="e.g. 550e8400-e29b-..."
+                        placeholder="例如 550e8400-e29b-..."
                         required
                     />
                     
                     {error && <div className={styles.error} style={{color: 'red', fontSize: '0.9rem'}}>{error}</div>}
 
                     <Button type="submit" variant="travel" disabled={loading}>
-                        {loading ? 'Adding...' : 'Add Member'}
+                        {loading ? '添加中...' : '添加成员'}
                     </Button>
                 </form>
             </Card>

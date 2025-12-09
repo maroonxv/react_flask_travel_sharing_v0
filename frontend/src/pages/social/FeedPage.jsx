@@ -41,11 +41,11 @@ const FeedPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Social Feed</h1>
+                <h1 className={styles.title}>社区动态</h1>
                 <Link to="/social/create">
                     <Button variant="social">
                         <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                        Create Post
+                        发布帖子
                     </Button>
                 </Link>
             </div>
@@ -56,22 +56,22 @@ const FeedPage = () => {
                 ))}
             </div>
 
-            {loading && <div className={styles.loading}>Loading feed...</div>}
+            {loading && <div className={styles.loading}>加载中...</div>}
 
             {!loading && hasMore && (
                 <div className={styles.loadMore}>
                     <Button variant="secondary" onClick={fetchPosts}>
-                        Load More
+                        加载更多
                     </Button>
                 </div>
             )}
 
             {!loading && !hasMore && posts.length > 0 && (
-                <div className={styles.endMessage}>You've reached the end!</div>
+                <div className={styles.endMessage}>到底啦！</div>
             )}
 
             {!loading && posts.length === 0 && (
-                <div className={styles.endMessage}>No posts yet. Be the first to share!</div>
+                <div className={styles.endMessage}>还没有帖子，快来抢沙发！</div>
             )}
         </div>
     );

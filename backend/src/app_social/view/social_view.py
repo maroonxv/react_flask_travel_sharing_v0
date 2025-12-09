@@ -3,7 +3,7 @@ Social 接口层
 
 提供 RESTful API，处理 HTTP 请求，调用应用服务。
 """
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, session
 from typing import Dict, Any
 import logging
 
@@ -22,18 +22,23 @@ logger = logging.getLogger(__name__)
 def _get_current_user_id() -> str:
     """获取当前用户ID
     
-    假设已经由鉴权中间件在 g.user_id 中设置了用户ID。
-    如果未设置，抛出异常或返回 None。
-    这里为了演示，如果未通过鉴权（例如测试时），可能需要 mock。
+    优先从 session 获取，其次从 g.user_id 获取（如果中间件设置了），最后尝试 header。
     """
-    user_id = getattr(g, 'user_id', None)
+    # 1. Try session (standard for this app)
+    user_id = session.get('user_id')
+    
+    # 2. Try g.user_id
+    if not user_id:
+        user_id = getattr(g, 'user_id', None)
+        
+    # 3. Try header (dev/test)
     if not user_id:
         # 尝试从 header 获取（仅用于开发/测试，生产环境应使用 JWT 中间件）
         user_id = request.headers.get('X-User-Id')
     
     if not user_id:
         raise ValueError("Unauthorized")
-    return user_id
+    return str(user_id)
 
 def _handle_error(e: Exception):
     """统一错误处理"""

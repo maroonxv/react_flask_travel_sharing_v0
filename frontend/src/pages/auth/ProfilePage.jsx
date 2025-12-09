@@ -15,7 +15,7 @@ const ProfilePage = () => {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         if (passData.newPassword !== passData.confirmPassword) {
-            setMessage({ type: 'error', text: 'New passwords do not match' });
+            setMessage({ type: 'error', text: '新密码不匹配' });
             return;
         }
 
@@ -23,16 +23,16 @@ const ProfilePage = () => {
         setMessage({ type: '', text: '' });
         try {
             await updatePassword(passData.oldPassword, passData.newPassword);
-            setMessage({ type: 'success', text: 'Password updated successfully' });
+            setMessage({ type: 'success', text: '密码修改成功' });
             setPassData({ oldPassword: '', newPassword: '', confirmPassword: '' });
         } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update password' });
+            setMessage({ type: 'error', text: '密码修改失败' });
         } finally {
             setLoading(false);
         }
     };
 
-    if (!user) return <div>Loading...</div>;
+    if (!user) return <div>加载中...</div>;
 
     return (
         <div className={styles.container}>
@@ -47,7 +47,7 @@ const ProfilePage = () => {
             </div>
 
             <div className={styles.grid}>
-                <Card title="Personal Info" className={styles.infoCard}>
+                <Card title="个人信息" className={styles.infoCard}>
                     <div className={styles.infoRow}>
                         <Mail size={18} />
                         <span>{user.email}</span>
@@ -64,34 +64,34 @@ const ProfilePage = () => {
                     )}
                     <div className={styles.infoRow}>
                         <Shield size={18} />
-                        <span>Role: {user.role}</span>
+                        <span>角色: {user.role}</span>
                     </div>
                     {user.profile?.bio && (
                         <div className={styles.bio}>
-                            <h3>Bio</h3>
+                            <h3>简介</h3>
                             <p>{user.profile.bio}</p>
                         </div>
                     )}
                 </Card>
 
-                <Card title="Change Password" className={styles.passwordCard}>
+                <Card title="修改密码" className={styles.passwordCard}>
                     <form onSubmit={handlePasswordChange}>
                         <Input
-                            label="Current Password"
+                            label="当前密码"
                             type="password"
                             value={passData.oldPassword}
                             onChange={(e) => setPassData({ ...passData, oldPassword: e.target.value })}
                             required
                         />
                         <Input
-                            label="New Password"
+                            label="新密码"
                             type="password"
                             value={passData.newPassword}
                             onChange={(e) => setPassData({ ...passData, newPassword: e.target.value })}
                             required
                         />
                         <Input
-                            label="Confirm New Password"
+                            label="确认新密码"
                             type="password"
                             value={passData.confirmPassword}
                             onChange={(e) => setPassData({ ...passData, confirmPassword: e.target.value })}
@@ -105,7 +105,7 @@ const ProfilePage = () => {
                         )}
 
                         <Button type="submit" variant="primary" disabled={loading} style={{ width: '100%', marginTop: '1rem' }}>
-                            {loading ? 'Updating...' : 'Update Password'}
+                            {loading ? '更新中...' : '更新密码'}
                         </Button>
                     </form>
                 </Card>

@@ -27,7 +27,7 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
             onClose();
         } catch (error) {
             console.error("Failed to add activity", error);
-            alert("Failed to add activity");
+            alert("添加活动失败");
         } finally {
             setLoading(false);
         }
@@ -35,26 +35,26 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
 
     return (
         <div className={styles.modalOverlay}>
-            <Card className={styles.modalContent} title="Add Activity">
+            <Card className={styles.modalContent} title="添加活动">
                 <button className={styles.closeBtn} onClick={onClose}>
                     <X size={20} />
                 </button>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <Input
-                        label="Activity Name"
+                        label="活动名称"
                         value={formData.name}
                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                         required
                     />
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <Input
-                            label="Type"
+                            label="类型"
                             value={formData.activity_type}
                             onChange={e => setFormData({ ...formData, activity_type: e.target.value })}
                             required
                         />
                         <Input
-                            label="Location"
+                            label="地点"
                             value={formData.location_name}
                             onChange={e => setFormData({ ...formData, location_name: e.target.value })}
                             required
@@ -62,14 +62,14 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
                     </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <Input
-                            label="Start Time"
+                            label="开始时间"
                             type="time"
                             value={formData.start_time}
                             onChange={e => setFormData({ ...formData, start_time: e.target.value })}
                             required
                         />
                         <Input
-                            label="End Time"
+                            label="结束时间"
                             type="time"
                             value={formData.end_time}
                             onChange={e => setFormData({ ...formData, end_time: e.target.value })}
@@ -77,14 +77,14 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
                         />
                     </div>
                     <Input
-                        label="Cost"
+                        label="花费"
                         type="number"
                         value={formData.cost}
                         onChange={e => setFormData({ ...formData, cost: e.target.value })}
                     />
 
                     <Button type="submit" variant="travel" disabled={loading}>
-                        {loading ? 'Adding...' : 'Add Activity'}
+                        {loading ? '添加中...' : '添加活动'}
                     </Button>
                 </form>
             </Card>

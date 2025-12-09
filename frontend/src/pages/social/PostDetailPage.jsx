@@ -54,23 +54,23 @@ const PostDetailPage = () => {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>;
-    if (!post) return <div style={{ padding: '2rem' }}>Post not found</div>;
+    if (loading) return <div style={{ padding: '2rem' }}>加载中...</div>;
+    if (!post) return <div style={{ padding: '2rem' }}>帖子未找到</div>;
 
     return (
         <div className={styles.container}>
             <button className={styles.backBtn} onClick={() => navigate(-1)}>
-                <ArrowLeft size={16} /> Back
+                <ArrowLeft size={16} /> 返回
             </button>
 
             <PostCard post={post} />
 
             <div className={styles.commentsSection}>
-                <h3 className={styles.commentsTitle}>Comments</h3>
+                <h3 className={styles.commentsTitle}>评论</h3>
 
                 <div className={styles.commentsList}>
                     {comments.length === 0 ? (
-                        <p className={styles.noComments}>No comments yet.</p>
+                        <p className={styles.noComments}>暂无评论。</p>
                     ) : (
                         comments.map((comment, index) => (
                             <div key={index} className={styles.comment}>
@@ -89,7 +89,7 @@ const PostDetailPage = () => {
 
                 <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
                     <Input
-                        placeholder="Write a comment..."
+                        placeholder="写下你的评论..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         className={styles.commentInput}

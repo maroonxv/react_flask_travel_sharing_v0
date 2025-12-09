@@ -67,7 +67,7 @@ const CreatePostPage = () => {
             navigate('/social');
         } catch (error) {
             console.error("Failed to create post", error);
-            alert("Failed to create post");
+            alert("发布帖子失败");
         } finally {
             setLoading(false);
         }
@@ -75,21 +75,21 @@ const CreatePostPage = () => {
 
     return (
         <div className={styles.container}>
-            <Card className={styles.formCard} title="Create New Post">
+            <Card className={styles.formCard} title="发布新帖子">
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <Input
-                        label="Title"
-                        placeholder="Give your post a title"
+                        label="标题"
+                        placeholder="给你的帖子起个标题吧"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
                     />
 
                     <div className={styles.textareaWrapper}>
-                        <label className={styles.label}>Content</label>
+                        <label className={styles.label}>内容</label>
                         <textarea
                             className={styles.textarea}
-                            placeholder="Share your travel experiences..."
+                            placeholder="分享你的旅行经历..."
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             required
@@ -107,7 +107,7 @@ const CreatePostPage = () => {
                         <div className={styles.uploadArea}>
                             <label htmlFor="image-upload" className={styles.uploadLabel}>
                                 <ImageIcon size={24} />
-                                <span>Add Photo</span>
+                                <span>添加照片</span>
                             </label>
                             <input
                                 id="image-upload"
@@ -121,7 +121,7 @@ const CreatePostPage = () => {
 
                     <div className={styles.row}>
                         <div className={styles.selectWrapper}>
-                            <label className={styles.label}>Link a Trip (Optional)</label>
+                            <label className={styles.label}>关联旅行 (可选)</label>
                             <div className={styles.selectContainer}>
                                 <MapPin size={16} className={styles.selectIcon} />
                                 <select
@@ -129,7 +129,7 @@ const CreatePostPage = () => {
                                     value={selectedTrip}
                                     onChange={(e) => setSelectedTrip(e.target.value)}
                                 >
-                                    <option value="">Select a trip...</option>
+                                    <option value="">选择一个旅行...</option>
                                     {myTrips.map(trip => (
                                         <option key={trip.id} value={trip.id}>{trip.name}</option>
                                     ))}
@@ -138,7 +138,7 @@ const CreatePostPage = () => {
                         </div>
 
                         <Input
-                            label="Tags (comma separated)"
+                            label="标签 (逗号分隔)"
                             placeholder="travel, fun, japan"
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
@@ -148,10 +148,10 @@ const CreatePostPage = () => {
 
                     <div className={styles.actions}>
                         <Button type="button" variant="secondary" onClick={() => navigate('/social')}>
-                            Cancel
+                            取消
                         </Button>
                         <Button type="submit" variant="social" disabled={loading}>
-                            {loading ? 'Posting...' : 'Post'}
+                            {loading ? '发布中...' : '发布'}
                         </Button>
                     </div>
                 </form>

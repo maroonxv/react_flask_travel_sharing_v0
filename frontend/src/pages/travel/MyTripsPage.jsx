@@ -52,28 +52,28 @@ const MyTripsPage = () => {
         } catch (error) {
             console.error("Failed to create trip", error);
             const errMsg = error.response?.data?.error || error.message || "Unknown error";
-            alert(`Failed to create trip: ${errMsg}`);
+            alert(`创建旅行失败: ${errMsg}`);
         }
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>My Trips</h1>
+                <h1 className={styles.title}>我的旅行</h1>
                 <Button variant="travel" onClick={() => setShowModal(true)}>
                     <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                    New Trip
+                    新建旅行
                 </Button>
             </div>
 
             {loading ? (
-                <div className={styles.loading}>Loading your trips...</div>
+                <div className={styles.loading}>加载旅行列表...</div>
             ) : (
                 <div className={styles.grid}>
                     {trips.length > 0 ? (
                         trips.map(trip => <TripCard key={trip.id} trip={trip} />)
                     ) : (
-                        <div className={styles.empty}>You haven't created any trips yet.</div>
+                        <div className={styles.empty}>你还没有创建任何旅行计划。</div>
                     )}
                 </div>
             )}
@@ -81,27 +81,27 @@ const MyTripsPage = () => {
             {/* Simple Modal overlay for creating trip */}
             {showModal && (
                 <div className={styles.modalOverlay}>
-                    <Card className={styles.modalContent} title="Plan a New Trip">
+                    <Card className={styles.modalContent} title="计划一次新旅行">
                         <button className={styles.closeBtn} onClick={() => setShowModal(false)}>
                             <X size={20} />
                         </button>
                         <form onSubmit={handleCreate} className={styles.form}>
                             <Input
-                                label="Trip Name"
+                                label="旅行名称"
                                 value={newTrip.name}
                                 onChange={e => setNewTrip({ ...newTrip, name: e.target.value })}
                                 required
                             />
                             <div className={styles.row}>
                                 <Input
-                                    label="Start Date"
+                                    label="开始日期"
                                     type="date"
                                     value={newTrip.start_date}
                                     onChange={e => setNewTrip({ ...newTrip, start_date: e.target.value })}
                                     required
                                 />
                                 <Input
-                                    label="End Date"
+                                    label="结束日期"
                                     type="date"
                                     value={newTrip.end_date}
                                     onChange={e => setNewTrip({ ...newTrip, end_date: e.target.value })}
@@ -109,18 +109,18 @@ const MyTripsPage = () => {
                                 />
                             </div>
                             <Input
-                                label="Budget ($)"
+                                label="预算 (￥)"
                                 type="number"
                                 value={newTrip.budget_amount}
                                 onChange={e => setNewTrip({ ...newTrip, budget_amount: e.target.value })}
                             />
                             <Input
-                                label="Description"
+                                label="描述"
                                 value={newTrip.description}
                                 onChange={e => setNewTrip({ ...newTrip, description: e.target.value })}
                             />
                             <Button type="submit" variant="travel" style={{ marginTop: '1rem' }}>
-                                Create Trip
+                                创建旅行
                             </Button>
                         </form>
                     </Card>

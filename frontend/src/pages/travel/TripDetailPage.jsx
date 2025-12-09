@@ -33,8 +33,8 @@ const TripDetailPage = () => {
         }
     };
 
-    if (loading) return <div className={styles.loading}>Loading trip details...</div>;
-    if (!trip) return <div className={styles.container}>Trip not found</div>;
+    if (loading) return <div className={styles.loading}>加载旅行详情...</div>;
+    if (!trip) return <div className={styles.container}>未找到旅行</div>;
 
     const days = trip.days || [];
     const currentDay = days[activeDayIdx];
@@ -45,7 +45,7 @@ const TripDetailPage = () => {
     return (
         <div className={styles.container}>
             <button style={{ marginBottom: '1rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => navigate(-1)}>
-                <ArrowLeft size={16} /> Back
+                <ArrowLeft size={16} /> 返回
             </button>
 
             <div className={styles.header}>
@@ -61,11 +61,11 @@ const TripDetailPage = () => {
 
                 <div className={styles.metaRow}>
                     <div className={styles.metaBlock}>
-                        <h3>Budget</h3>
+                        <h3>预算</h3>
                         <p>{fmtMoney(trip.budget_amount)}</p>
                     </div>
                     <div className={styles.metaBlock}>
-                        <h3>Members</h3>
+                        <h3>成员</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <Users size={20} />
                             <span>{trip.member_count}</span>
@@ -73,14 +73,14 @@ const TripDetailPage = () => {
                                 onClick={() => setShowMemberModal(true)}
                                 className={styles.iconBtn}
                                 style={{ marginLeft: '0.5rem', cursor: 'pointer', background: 'none', border: 'none', color: '#3b82f6' }}
-                                title="Add Member"
+                                title="添加成员"
                             >
                                 <Plus size={18} />
                             </button>
                         </div>
                     </div>
                     <div className={styles.metaBlock}>
-                        <h3>Status</h3>
+                        <h3>状态</h3>
                         <p style={{ textTransform: 'capitalize' }}>{trip.status}</p>
                     </div>
                 </div>
@@ -94,7 +94,7 @@ const TripDetailPage = () => {
                         className={`${styles.tab} ${activeDayIdx === idx ? styles.activeTab : ''}`}
                         onClick={() => setActiveDayIdx(idx)}
                     >
-                        Day {idx + 1}
+                        第 {idx + 1} 天
                     </button>
                 ))}
             </div>
@@ -131,14 +131,14 @@ const TripDetailPage = () => {
                                 </div>
                             ))
                         ) : (
-                            <p style={{ color: '#94a3b8', fontStyle: 'italic', marginLeft: '1rem' }}>No activities planned for this day.</p>
+                            <p style={{ color: '#94a3b8', fontStyle: 'italic', marginLeft: '1rem' }}>这一天还没有安排活动。</p>
                         )}
 
                         {/* Transits typically between activities, but here just rendering separate if simple mapping fails */}
                         {/* Displaying Transits at the bottom of the day if logic is complex */}
                         {currentDay.transits && currentDay.transits.length > 0 && (
                             <div style={{ marginTop: '2rem', paddingLeft: '1rem' }}>
-                                <h3>Transits</h3>
+                                <h3>交通</h3>
                                 {currentDay.transits.map((transit, tIdx) => (
                                     <div key={`transit-${tIdx}`} className={styles.transitContainer}>
                                         <ArrowRight size={16} />
@@ -155,7 +155,7 @@ const TripDetailPage = () => {
                 {/* Add Activity Button */}
                 <div className={styles.addBtnContainer}>
                     <Button variant="travel" onClick={() => setShowAddModal(true)}>
-                        + Add Activity
+                        + 添加活动
                     </Button>
                 </div>
             </div>

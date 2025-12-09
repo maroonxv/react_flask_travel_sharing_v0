@@ -36,7 +36,9 @@ function App() {
               <Route path="/social" element={<FeedPage />} />
               <Route path="/social/create" element={<CreatePostPage />} />
               <Route path="/social/post/:id" element={<PostDetailPage />} />
-              <Route path="/social/chat" element={<ChatPage />} />
+              
+              {/* Chat */}
+              <Route path="/chat" element={<ChatPage />} />
 
               {/* Travel */}
               <Route path="/travel" element={<MyTripsPage />} />

@@ -22,14 +22,14 @@ const PostCard = ({ post }) => {
 
             <div className={styles.content}>
                 <Link to={`/social/post/${post.id}`} className={styles.titleLink}>
-                    <h3 className={styles.title}>{post.title || 'Untitled Post'}</h3>
+                    <h3 className={styles.title}>{post.title || '无标题帖子'}</h3>
                 </Link>
                 <p className={styles.text}>{post.content}</p>
 
                 {post.trip_id && (
                     <div className={styles.tripLink}>
                         <MapPin size={16} />
-                        <span>Linked Trip: {post.trip_name || 'View Trip'}</span>
+                        <span>关联旅行: {post.trip_name || '查看旅行'}</span>
                     </div>
                 )}
 

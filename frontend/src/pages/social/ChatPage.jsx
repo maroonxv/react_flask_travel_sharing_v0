@@ -73,11 +73,11 @@ const ChatPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.sidebar}>
-                <h2 className={styles.header}>Messages</h2>
+                <h2 className={styles.header}>消息</h2>
                 <div className={styles.conversationList}>
-                    {loading && <div className={styles.loading}>Loading...</div>}
+                    {loading && <div className={styles.loading}>加载中...</div>}
                     {!loading && conversations.length === 0 && (
-                        <div className={styles.emptyState}>No conversations yet</div>
+                        <div className={styles.emptyState}>暂无会话</div>
                     )}
                     {conversations.map(conv => (
                         <div
@@ -101,7 +101,7 @@ const ChatPage = () => {
                 {activeConvId ? (
                     <>
                         <div className={styles.chatHeader}>
-                            <h3>{conversations.find(c => c.id === activeConvId)?.name || 'Chat'}</h3>
+                            <h3>{conversations.find(c => c.id === activeConvId)?.name || '聊天'}</h3>
                         </div>
 
                         <div className={styles.messageList}>
@@ -123,7 +123,7 @@ const ChatPage = () => {
 
                         <form onSubmit={handleSend} className={styles.inputArea}>
                             <Input
-                                placeholder="Type a message..."
+                                placeholder="输入消息..."
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 className={styles.chatInput}
@@ -136,7 +136,7 @@ const ChatPage = () => {
                 ) : (
                     <div className={styles.noChatSelected}>
                         <User size={48} />
-                        <p>Select a conversation to start chatting</p>
+                        <p>选择一个会话开始聊天</p>
                     </div>
                 )}
             </div>

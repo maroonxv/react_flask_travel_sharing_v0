@@ -24,18 +24,18 @@ const PublicTripsPage = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Public Trips Gallery</h1>
-                <p className={styles.subtitle}>Explore adventures shared by others</p>
+                <h1 className={styles.title}>公开旅行广场</h1>
+                <p className={styles.subtitle}>探索他人分享的精彩旅程</p>
             </div>
 
             {loading ? (
-                <div className={styles.loading}>Loading trips...</div>
+                <div className={styles.loading}>加载旅行中...</div>
             ) : (
                 <div className={styles.grid}>
                     {trips.length > 0 ? (
                         trips.map(trip => <TripCard key={trip.id} trip={trip} />)
                     ) : (
-                        <div className={styles.empty}>No public trips found.</div>
+                        <div className={styles.empty}>暂无公开旅行。</div>
                     )}
                 </div>
             )}
