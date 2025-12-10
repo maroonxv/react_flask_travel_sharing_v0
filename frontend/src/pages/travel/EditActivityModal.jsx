@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { addActivity } from '../../api/travel';
+import { useState, useEffect } from 'react';
+import { updateActivity } from '../../api/travel';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Card from '../../components/Card';
 import { X } from 'lucide-react';
 import styles from './TripDetail.module.css'; // Share styles
 
-const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
+const EditActivityModal = ({ tripId, dayIndex, activity, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
         name: '',
-        activity_type: 'sightseeing', // Default
+        activity_type: 'sightseeing',
         location_name: '',
         start_time: '',
         end_time: '',
@@ -18,22 +18,35 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
     });
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (activity) {
+            setFormData({
+                name: activity.name,
+                activity_type: activity.type || 'sightseeing',
+                location_name: activity.location?.name || '',
+                start_time: activity.start_time || '',
+                end_time: activity.end_time || '',
+                cost: activity.cost?.amount || 0,
+                currency: activity.cost?.currency || 'USD'
+            });
+        }
+    }, [activity]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            // Backend expects cost_amount, not cost
             const payload = {
                 ...formData,
                 cost_amount: formData.cost,
                 cost: undefined
             };
-            await addActivity(tripId, dayIndex, payload);
+            await updateActivity(tripId, dayIndex, activity.id, payload);
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Failed to add activity", error);
-            alert("添加活动失败");
+            console.error("Failed to update activity", error);
+            alert("修改活动失败");
         } finally {
             setLoading(false);
         }
@@ -41,7 +54,7 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
 
     return (
         <div className={styles.modalOverlay}>
-            <Card className={styles.modalContent} title="添加活动">
+            <Card className={styles.modalContent} title="修改活动">
                 <button className={styles.closeBtn} onClick={onClose}>
                     <X size={20} />
                 </button>
@@ -94,7 +107,7 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
                             取消
                         </Button>
                         <Button type="submit" variant="travel" disabled={loading}>
-                            {loading ? '添加中...' : '添加活动'}
+                            {loading ? '保存中...' : '保存修改'}
                         </Button>
                     </div>
                 </form>
@@ -103,4 +116,4 @@ const AddActivityModal = ({ tripId, dayIndex, onClose, onSuccess }) => {
     );
 };
 
-export default AddActivityModal;
+export default EditActivityModal;

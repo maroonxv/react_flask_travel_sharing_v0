@@ -718,6 +718,19 @@ class Trip:
         """更新预算"""
         self._budget = new_budget
         self._updated_at = datetime.utcnow()
+
+    def update_status(self, new_status: TripStatus) -> None:
+        """更新状态"""
+        if self._status == new_status:
+            return
+        
+        self._status = new_status
+        self._updated_at = datetime.utcnow()
+        
+        self._add_event(TripUpdatedEvent(
+            trip_id=self._id.value,
+            updated_fields=('status',)
+        ))
     
     # ==================== 统计报表 ====================
     

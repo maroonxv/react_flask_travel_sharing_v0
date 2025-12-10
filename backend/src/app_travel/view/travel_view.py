@@ -140,7 +140,10 @@ def serialize_transit(transit) -> dict:
         'duration_seconds': transit.route_info.duration_seconds,
         'cost': {
             'amount': float(transit.estimated_cost.estimated_cost.amount),
-            'currency': transit.estimated_cost.estimated_cost.currency
+            'currency': transit.estimated_cost.estimated_cost.currency,
+            'fuel_cost': float(transit.estimated_cost.fuel_cost.amount) if transit.estimated_cost.fuel_cost else 0,
+            'toll_cost': float(transit.estimated_cost.toll_cost.amount) if transit.estimated_cost.toll_cost else 0,
+            'ticket_cost': float(transit.estimated_cost.ticket_cost.amount) if transit.estimated_cost.ticket_cost else 0
         } if transit.estimated_cost else None,
         # polyline 可能很长，视前端需求决定是否返回
         'polyline': transit.route_info.polyline 
@@ -214,7 +217,8 @@ def update_trip(trip_id):
             description=data.get('description'),
             visibility=data.get('visibility'),
             budget_amount=data.get('budget_amount'),
-            budget_currency=data.get('budget_currency', 'CNY')
+            budget_currency=data.get('budget_currency', 'CNY'),
+            status=data.get('status')
         )
         
         if not trip:

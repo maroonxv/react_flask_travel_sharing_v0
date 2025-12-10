@@ -44,7 +44,7 @@ const PostCard = ({ post, onDelete }) => {
     return (
         <Card className={styles.postCard}>
             <div className={styles.header}>
-                <div className={styles.userInfo}>
+                <Link to={`/users/${post.author_id}`} className={styles.userInfo} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className={styles.avatar}>
                         {post.author_avatar ? (
                              <img src={post.author_avatar} alt={post.author_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -53,7 +53,7 @@ const PostCard = ({ post, onDelete }) => {
                         )}
                     </div>
                     <span className={styles.username}>{post.author_name}</span>
-                </div>
+                </Link>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
                     {user && user.id === post.author_id && (

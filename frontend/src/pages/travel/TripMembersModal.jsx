@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { removeMember } from '../../api/travel';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
@@ -55,7 +56,11 @@ const TripMembersModal = ({ trip, onClose, onSuccess }) => {
                             borderRadius: '8px',
                             border: '1px solid var(--border-color)'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <Link 
+                                to={`/users/${member.user_id}`}
+                                onClick={onClose}
+                                style={{ display: 'flex', alignItems: 'center', gap: '1rem', textDecoration: 'none', color: 'inherit', flex: 1 }}
+                            >
                                 {/* Avatar */}
                                 <div style={{ 
                                     width: '40px', 
@@ -91,7 +96,7 @@ const TripMembersModal = ({ trip, onClose, onSuccess }) => {
                                         @{member.username}
                                     </span>
                                 </div>
-                            </div>
+                            </Link>
 
                             {/* Actions */}
                             {isCurrentUserAdmin && member.user_id !== user?.id && (
@@ -114,6 +119,10 @@ const TripMembersModal = ({ trip, onClose, onSuccess }) => {
                             )}
                         </div>
                     ))}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                    <Button variant="secondary" onClick={onClose}>取消</Button>
                 </div>
             </Card>
         </div>

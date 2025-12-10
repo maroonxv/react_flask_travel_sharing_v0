@@ -22,8 +22,18 @@ export const createTrip = async (tripData) => {
     return response.data;
 };
 
+export const updateTrip = async (tripId, tripData) => {
+    const response = await client.put(`/travel/trips/${tripId}`, tripData);
+    return response.data;
+};
+
 export const addActivity = async (tripId, dayIndex, activityData) => {
     const response = await client.post(`/travel/trips/${tripId}/days/${dayIndex}/activities`, activityData);
+    return response.data;
+};
+
+export const updateActivity = async (tripId, dayIndex, activityId, activityData) => {
+    const response = await client.put(`/travel/trips/${tripId}/days/${dayIndex}/activities/${activityId}`, activityData);
     return response.data;
 };
 

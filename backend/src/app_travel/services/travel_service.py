@@ -134,7 +134,8 @@ class TravelService:
         description: Optional[str] = None,
         visibility: Optional[str] = None,
         budget_amount: Optional[float] = None,
-        budget_currency: str = "CNY"
+        budget_currency: str = "CNY",
+        status: Optional[str] = None
     ) -> Optional[Trip]:
         """更新旅行基本信息
         
@@ -145,6 +146,7 @@ class TravelService:
             visibility: 新可见性（可选）
             budget_amount: 新预算金额（可选）
             budget_currency: 预算货币
+            status: 新状态（可选）
             
         Returns:
             更新后的旅行实例
@@ -163,6 +165,8 @@ class TravelService:
         if budget_amount is not None:
             budget = Money(Decimal(str(budget_amount)), budget_currency) if budget_amount > 0 else None
             trip.update_budget(budget)
+        if status:
+            trip.update_status(TripStatus.from_string(status))
         
         # 持久化
         self._trip_repository.save(trip)
