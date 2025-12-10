@@ -31,3 +31,8 @@ export const addMember = async (tripId, userId, role = 'member') => {
     const response = await client.post(`/travel/trips/${tripId}/members`, { user_id: userId, role });
     return response.data;
 };
+
+export const removeMember = async (tripId, userId) => {
+    const response = await client.delete(`/travel/trips/${tripId}/members/${userId}`);
+    return response.data;
+};

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import AddActivityModal from './AddActivityModal';
 import AddMemberModal from './AddMemberModal';
+import TripMembersModal from './TripMembersModal';
 import { Calendar, Users, DollarSign, MapPin, Clock, ArrowRight, ArrowLeft, Plus } from 'lucide-react';
 import styles from './TripDetail.module.css';
 
@@ -16,7 +17,8 @@ const TripDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [activeDayIdx, setActiveDayIdx] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showMemberModal, setShowMemberModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [showMembersListModal, setShowMembersListModal] = useState(false);
 
     useEffect(() => {
         fetchTrip();
@@ -67,10 +69,16 @@ const TripDetailPage = () => {
                     <div className={styles.metaBlock}>
                         <h3>成员</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Users size={20} />
-                            <span>{trip.member_count}</span>
+                            <div 
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                                onClick={() => setShowMembersListModal(true)}
+                                title="查看成员列表"
+                            >
+                                <Users size={20} />
+                                <span>{trip.member_count}</span>
+                            </div>
                             <button 
-                                onClick={() => setShowMemberModal(true)}
+                                onClick={() => setShowAddMemberModal(true)}
                                 className={styles.iconBtn}
                                 style={{ marginLeft: '0.5rem', cursor: 'pointer', background: 'none', border: 'none', color: '#3b82f6' }}
                                 title="添加成员"
@@ -142,8 +150,8 @@ const TripDetailPage = () => {
                                 {currentDay.transits.map((transit, tIdx) => (
                                     <div key={`transit-${tIdx}`} className={styles.transitContainer}>
                                         <ArrowRight size={16} />
-                                        <span>{transit.mode} ({transit.duration} mins)</span>
-                                        <span>{transit.distance} km</span>
+                                        <span>{transit.mode} ({Math.round(transit.duration_seconds / 60)} mins)</span>
+                                        <span>{(transit.distance_meters / 1000).toFixed(1)} km</span>
                                     </div>
                                 ))}
                             </div>
@@ -169,10 +177,18 @@ const TripDetailPage = () => {
                 />
             )}
 
-            {showMemberModal && (
+            {showAddMemberModal && (
                 <AddMemberModal
                     tripId={id}
-                    onClose={() => setShowMemberModal(false)}
+                    onClose={() => setShowAddMemberModal(false)}
+                    onSuccess={fetchTrip}
+                />
+            )}
+
+            {showMembersListModal && (
+                <TripMembersModal
+                    trip={trip}
+                    onClose={() => setShowMembersListModal(false)}
                     onSuccess={fetchTrip}
                 />
             )}

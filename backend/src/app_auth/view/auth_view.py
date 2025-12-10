@@ -163,6 +163,29 @@ def get_current_user():
         session.pop('user_id', None)
         return jsonify({'error': 'User not found'}), 401
 
+@auth_bp.route('/users/<user_id>', methods=['GET'])
+def get_user_profile(user_id):
+    """获取指定用户信息"""
+    service = get_auth_service()
+    user = service.get_user_by_id(user_id)
+    
+    if user:
+        # 返回公开信息，可以使用相同的 serialize_user，或者过滤敏感字段
+        # 这里为了简单直接复用 serialize_user，但在真实场景应避免暴露 email 等隐私
+        # 假设 serialize_user 返回的是全量信息，我们在视图层做过滤
+        user_data = serialize_user(user)
+        # 过滤敏感字段
+        safe_data = {
+            'id': user_data['id'],
+            'username': user_data['username'],
+            'role': user_data['role'],
+            'profile': user_data['profile'],
+            'created_at': user_data['created_at']
+        }
+        return jsonify(safe_data), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
 @auth_bp.route('/change-password', methods=['POST'])
 def change_password():
     """修改密码"""

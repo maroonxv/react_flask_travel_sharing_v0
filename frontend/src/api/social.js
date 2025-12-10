@@ -28,6 +28,11 @@ export const likePost = async (id) => {
     return response.data;
 };
 
+export const deletePost = async (id) => {
+    const response = await client.delete(`/social/posts/${id}`);
+    return response.data;
+};
+
 export const getComments = async (postId) => {
     // Assuming comments are part of post detail or fetched separately? 
     // The prompt says "GET /posts/:id" returns post details.
@@ -54,5 +59,10 @@ export const getMessages = async (conversationId) => {
 
 export const sendMessage = async (conversationId, content) => {
     const response = await client.post(`/social/conversations/${conversationId}/messages`, { content });
+    return response.data;
+};
+
+export const getUserProfile = async (userId) => {
+    const response = await client.get(`/auth/users/${userId}`);
     return response.data;
 };

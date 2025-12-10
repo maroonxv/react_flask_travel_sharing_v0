@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, MapPin } from 'lucide-react';
+import { Heart, MessageCircle, MapPin, Trash2 } from 'lucide-react';
 import Card from './Card';
 import styles from './PostCard.module.css';
-import { likePost } from '../api/social';
+import { likePost, deletePost } from '../api/social';
+import { useAuth } from '../context/AuthContext';
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, onDelete }) => {
+    const { user } = useAuth();
     const [likes, setLikes] = useState(post.like_count || 0);
     const [isLiked, setIsLiked] = useState(post.is_liked || false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleLike = async () => {
         try {
@@ -16,6 +19,25 @@ const PostCard = ({ post }) => {
             setLikes(prev => data.is_liked ? prev + 1 : prev - 1);
         } catch (error) {
             console.error("Failed to like post", error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm("确定要删除这条帖子吗？")) return;
+        setIsDeleting(true);
+        try {
+            await deletePost(post.id);
+            if (onDelete) {
+                onDelete(post.id);
+            } else {
+                // If no callback, maybe just hide it or reload?
+                // Reloading is safe but jarring.
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Failed to delete post", error);
+            alert("删除失败");
+            setIsDeleting(false);
         }
     };
 
@@ -32,7 +54,19 @@ const PostCard = ({ post }) => {
                     </div>
                     <span className={styles.username}>{post.author_name}</span>
                 </div>
-                <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
+                    {user && user.id === post.author_id && (
+                        <button 
+                            onClick={handleDelete} 
+                            disabled={isDeleting}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
+                            title="删除帖子"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
+                </div>
             </div>
 
             {post.media_urls && post.media_urls.length > 0 && (

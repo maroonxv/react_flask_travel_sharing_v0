@@ -41,10 +41,37 @@ def get_travel_service() -> TravelService:
     
     return TravelService(trip_repo, geo_service)
 
+from app_auth.infrastructure.database.persistent_model.user_po import UserPO
+
 # ==================== 序列化辅助函数 ====================
 
 def serialize_trip(trip: Trip) -> dict:
     """将 Trip 聚合根序列化为字典"""
+    
+    # 批量获取用户信息以展示头像和用户名
+    members_data = []
+    if trip.members:
+        user_ids = [m.user_id for m in trip.members]
+        # 使用 g.session 查询 UserPO
+        # 注意：UserPO 属于 auth 模块，这里跨模块查询是为了性能（避免 N+1 调用 Auth Service）
+        # 在严格的微服务架构中，应该调用 AuthService 的批量接口
+        try:
+            users = g.session.query(UserPO).filter(UserPO.id.in_(user_ids)).all()
+            user_map = {u.id: u for u in users}
+        except Exception:
+            # 如果查询失败，降级处理
+            user_map = {}
+            
+        for m in trip.members:
+            user = user_map.get(m.user_id)
+            members_data.append({
+                'user_id': m.user_id,
+                'role': m.role.value,
+                'nickname': m.nickname, # 这里的 nickname 是 trip 内的备注名
+                'username': user.username if user else 'Unknown',
+                'avatar_url': user.avatar_url if user else None
+            })
+
     return {
         'id': trip.id.value,
         'name': trip.name.value,
@@ -57,17 +84,13 @@ def serialize_trip(trip: Trip) -> dict:
             'amount': float(trip.budget.amount),
             'currency': trip.budget.currency
         } if trip.budget else None,
+        'budget_amount': float(trip.budget.amount) if trip.budget else 0, # Flat field for frontend convenience
         'visibility': trip.visibility.value,
         'status': trip.status.value,
         'created_at': trip.created_at.isoformat(),
         'updated_at': trip.updated_at.isoformat(),
-        'members': [
-            {
-                'user_id': m.user_id,
-                'role': m.role.value,
-                'nickname': m.nickname
-            } for m in trip.members
-        ],
+        'member_count': len(trip.members), # Helper count
+        'members': members_data,
         'days': [
             serialize_trip_day(day) for day in trip.days
         ]
@@ -264,7 +287,36 @@ def list_public_trips():
     trips = service.list_public_trips(limit, offset)
     return jsonify([serialize_trip(t) for t in trips])
 
-# ==================== 行程/活动管理 (调用领域服务逻辑) ====================
+@travel_bp.route('/trips/<trip_id>/members/<user_id>', methods=['DELETE'])
+def remove_member(trip_id, user_id):
+    """移除成员"""
+    # 简单的认证检查
+    operator_id = session.get('user_id')
+    if not operator_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+        
+    service = get_travel_service()
+    try:
+        updated_trip = service.remove_member(
+            trip_id=trip_id,
+            user_id=user_id,
+            removed_by=operator_id
+        )
+        if not updated_trip:
+            return jsonify({'error': 'Trip not found'}), 404
+            
+        g.session.commit()
+        return jsonify(serialize_trip(updated_trip)), 200
+    except ValueError as e:
+        g.session.rollback()
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        g.session.rollback()
+        traceback.print_exc()
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+# ==================== 活动与行程管理 (调用领域服务逻辑) ====================
 
 @travel_bp.route('/trips/<trip_id>/days/<int:day_index>/activities', methods=['POST'])
 def add_activity(trip_id, day_index):
