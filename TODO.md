@@ -10,17 +10,15 @@
 
 现在数据库中的一个帖子在社区动态中会显示两次
 
-1. 把用户个人信息设置和修改密码的功能整合到专门的“管理个人资料”页面（该页面的入口放在现在“我的”页面中）
-2. 现在“社区”页面无法显示帖子的图片
+1. 增加删除自己发布的帖子的功能
 
 
 用户在trip中添加activity后，后台自动调用travel_sharing_app_v0\backend\src\app_travel\infrastructure\external_service\gaode_geo_service_impl.py计算路径时间的功能有问题，现在路径并不能计算出来，请修正
 
 
 疑问：
-1. 若要增加添加好友的功能，应该写在app_auth中吗？是否需要修改数据库范式？
-2. 若在旅行界面，每个Trip可以添加一张图片，需要修改数据库范式吗？
-3. 群聊中支持分享帖子吗？
+1. 若要在trip_detail界面的成员处显示成员头像，后端view有暴露的接口可以直接调用吗
+2. 现在帖子的评论没法显示发表评论的用户，是否需要在数据库的comment表中增加一个字段来存储评论的用户ID？现在这个表中的parent_id是做什么的？
 
 
 一、增加好友关系：
@@ -40,3 +38,6 @@
 三、若要在群聊中分享帖子（用卡片形式的富文本来分析）
 1. backend/src/app_social/domain/value_objects/social_value_objects.py 中的 MessageContent 类扩展 message_type 枚举，增加 post_share 类型
 2. 在前后端增加相应的解析逻辑
+
+
+我可以将所有的sqlalchemy_dao的实现修改为使用原始SQL，而功能不变吗？

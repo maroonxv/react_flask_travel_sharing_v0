@@ -3,6 +3,7 @@ import { getConversations, getMessages, sendMessage } from '../../api/social';
 import { useAuth } from '../../context/AuthContext';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import Card from '../../components/Card';
 import { Send, User } from 'lucide-react';
 import styles from './ChatPage.module.css';
 
@@ -72,8 +73,7 @@ const ChatPage = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.sidebar}>
-                <h2 className={styles.header}>消息</h2>
+            <Card className={styles.sidebar} contentClassName={styles.cardContent} title="消息列表">
                 <div className={styles.conversationList}>
                     {loading && <div className={styles.loading}>加载中...</div>}
                     {!loading && conversations.length === 0 && (
@@ -95,9 +95,9 @@ const ChatPage = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </Card>
 
-            <div className={styles.chatArea}>
+            <Card className={styles.chatArea} contentClassName={styles.cardContent}>
                 {activeConvId ? (
                     <>
                         <div className={styles.chatHeader}>
@@ -106,7 +106,7 @@ const ChatPage = () => {
 
                         <div className={styles.messageList}>
                             {messages.map((msg, idx) => {
-                                const isMe = msg.sender_id === user?.id; // backend might send sender_id
+                                const isMe = msg.sender_id === user?.id;
                                 return (
                                     <div key={idx} className={`${styles.message} ${isMe ? styles.sent : styles.received}`}>
                                         <div className={styles.bubble}>
@@ -127,6 +127,7 @@ const ChatPage = () => {
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 className={styles.chatInput}
+                                style={{ marginBottom: 0 }}
                             />
                             <Button type="submit" variant="social" className={styles.sendBtn} disabled={!newMessage.trim()}>
                                 <Send size={18} />
@@ -139,7 +140,7 @@ const ChatPage = () => {
                         <p>选择一个会话开始聊天</p>
                     </div>
                 )}
-            </div>
+            </Card>
         </div>
     );
 };

@@ -39,7 +39,11 @@ const ProfilePage = () => {
         <div className={styles.container}>
             <div className={styles.header}>
                 <div className={styles.avatar}>
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
+                    {user.profile?.avatar_url ? (
+                        <img src={user.profile.avatar_url} alt={user.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                        user.username?.charAt(0).toUpperCase() || 'U'
+                    )}
                 </div>
                 <div className={styles.userInfo}>
                     <h1>{user.username}</h1>

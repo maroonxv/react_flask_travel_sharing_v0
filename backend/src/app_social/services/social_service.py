@@ -17,6 +17,9 @@ from app_social.infrastructure.database.repository_impl.conversation_repository_
 from app_social.infrastructure.database.dao_impl.sqlalchemy_post_dao import SqlAlchemyPostDao
 from app_social.infrastructure.database.dao_impl.sqlalchemy_conversation_dao import SqlAlchemyConversationDao
 from app_social.infrastructure.database.dao_impl.sqlalchemy_message_dao import SqlAlchemyMessageDao
+from app_auth.infrastructure.database.repository_impl.user_repository_impl import UserRepositoryImpl
+from app_auth.infrastructure.database.dao_impl.sqlalchemy_user_dao import SqlAlchemyUserDao
+from app_auth.domain.value_objects.user_value_objects import UserId
 from shared.database.core import SessionLocal
 from shared.event_bus import get_event_bus
 from shared.storage.local_file_storage import LocalFileStorageService
@@ -253,7 +256,23 @@ class SocialService:
             
             posts = post_repo.find_public_feed(limit, offset, tags)
             
-            return [self._post_to_dto(p) for p in posts]
+            # Batch fetch authors
+            author_ids = list(set(p.author_id for p in posts))
+            author_info_map = {}
+            if author_ids:
+                try:
+                    user_dao = SqlAlchemyUserDao(session)
+                    user_repo = UserRepositoryImpl(user_dao)
+                    users = user_repo.find_by_ids([UserId(uid) for uid in author_ids])
+                    for u in users:
+                        author_info_map[u.id.value] = {
+                            "name": u.username.value,
+                            "avatar": u.profile.avatar_url
+                        }
+                except Exception as e:
+                    print(f"Error fetching authors: {e}")
+            
+            return [self._post_to_dto(p, author_info=author_info_map.get(p.author_id)) for p in posts]
         finally:
             session.close()
             
@@ -291,15 +310,57 @@ class SocialService:
                 if p.can_be_viewed_by(viewer_id or ""):
                     visible_posts.append(p)
             
-            return [self._post_to_dto(p, viewer_id) for p in visible_posts]
+            # Batch fetch authors (usually just one, but good for consistency)
+            author_ids = list(set(p.author_id for p in visible_posts))
+            author_info_map = {}
+            if author_ids:
+                try:
+                    user_dao = SqlAlchemyUserDao(session)
+                    user_repo = UserRepositoryImpl(user_dao)
+                    users = user_repo.find_by_ids([UserId(uid) for uid in author_ids])
+                    for u in users:
+                        author_info_map[u.id.value] = {
+                            "name": u.username.value,
+                            "avatar": u.profile.avatar_url
+                        }
+                except Exception as e:
+                    print(f"Error fetching authors: {e}")
+
+            return [self._post_to_dto(p, viewer_id, author_info=author_info_map.get(p.author_id)) for p in visible_posts]
         finally:
             session.close()
 
-    def _post_to_dto(self, post: Post, viewer_id: Optional[str] = None) -> Dict[str, Any]:
+    def _post_to_dto(self, post: Post, viewer_id: Optional[str] = None, author_info: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """将 Post 聚合根转换为 DTO"""
+        # 获取作者信息
+        author_name = "Unknown"
+        author_avatar = None
+        
+        if author_info:
+            author_name = author_info.get("name", "Unknown")
+            author_avatar = author_info.get("avatar")
+        else:
+            try:
+                # 临时创建 session 来查询用户信息
+                # 更好的做法是传递 session 进来，或者使用缓存服务
+                session = SessionLocal()
+                try:
+                    user_dao = SqlAlchemyUserDao(session)
+                    user_repo = UserRepositoryImpl(user_dao)
+                    author = user_repo.find_by_id(UserId(post.author_id))
+                    if author:
+                        author_name = author.username.value
+                        author_avatar = author.profile.avatar_url
+                finally:
+                    session.close()
+            except Exception as e:
+                print(f"Error fetching author info: {e}")
+
         return {
             "id": post.id.value,
             "author_id": post.author_id,
+            "author_name": author_name,
+            "author_avatar": author_avatar,
             "title": post.content.title,
             "content": post.content.text,
             "media_urls": post.content.images,

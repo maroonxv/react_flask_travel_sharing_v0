@@ -1,6 +1,6 @@
 import styles from './Card.module.css';
 
-const Card = ({ children, className = '', title, action }) => {
+const Card = ({ children, className = '', contentClassName = '', title, action }) => {
     return (
         <div className={`${styles.card} ${className}`}>
             {(title || action) && (
@@ -9,7 +9,7 @@ const Card = ({ children, className = '', title, action }) => {
                     {action && <div className={styles.action}>{action}</div>}
                 </div>
             )}
-            <div className={styles.content}>
+            <div className={`${styles.content} ${contentClassName}`}>
                 {children}
             </div>
         </div>

@@ -35,6 +35,18 @@ class IUserRepository(ABC):
         pass
     
     @abstractmethod
+    def find_by_ids(self, user_ids: List[UserId]) -> List[User]:
+        """根据ID列表查找用户
+        
+        Args:
+            user_ids: 用户ID列表
+            
+        Returns:
+            用户列表
+        """
+        pass
+    
+    @abstractmethod
     def find_by_email(self, email: Email) -> Optional[User]:
         """根据邮箱查找用户
         

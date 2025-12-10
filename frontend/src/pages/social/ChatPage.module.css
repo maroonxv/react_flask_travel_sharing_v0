@@ -4,12 +4,23 @@
     /* Subtract layout padding if any */
     max-height: calc(100vh - 2 * var(--spacing-md));
     overflow: hidden;
+    gap: var(--spacing-md); /* Add gap between cards */
+}
+
+/* New class to override Card content styles */
+.cardContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    overflow: hidden;
+    height: 100%;
 }
 
 .sidebar {
     width: 300px;
-    background-color: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
+    /* background-color: var(--bg-secondary); Removed to let Card handle it */
+    /* border-right: 1px solid var(--border-color); Removed to let Card handle it */
     display: flex;
     flex-direction: column;
 }
@@ -82,7 +93,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-primary);
+    /* background-color: var(--bg-primary); Removed */
     position: relative;
 }
 
@@ -99,11 +110,11 @@
 
 .messageList {
     flex: 1;
+    padding: var(--spacing-md);
     overflow-y: auto;
-    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
 }
 
 .message {
@@ -123,49 +134,45 @@
 }
 
 .bubble {
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-lg);
-    font-size: 0.95rem;
-    line-height: 1.5;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    position: relative;
+    word-break: break-word;
 }
 
 .sent .bubble {
     background-color: var(--color-social);
     color: #121212;
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 2px;
 }
 
 .received .bubble {
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-secondary); /* or tertiary */
+    background-color: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
-    border-bottom-left-radius: 4px;
-    border: 1px solid var(--border-color);
+    border-bottom-left-radius: 2px;
 }
 
 .time {
     font-size: 0.75rem;
     color: var(--text-secondary);
-    margin-top: 0.25rem;
+    margin-top: 4px;
 }
 
 .inputArea {
     padding: var(--spacing-md);
     border-top: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
     display: flex;
     gap: var(--spacing-md);
-    align-items: center;
+    background: var(--bg-secondary);
 }
 
 .chatInput {
-    margin-bottom: 0 !important;
     flex: 1;
 }
 
 .sendBtn {
-    height: 48px;
-    width: 48px;
-    padding: 0;
+    padding: 0 var(--spacing-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -179,4 +186,10 @@
     justify-content: center;
     color: var(--text-secondary);
     gap: var(--spacing-md);
+}
+
+.loading, .emptyState {
+    padding: var(--spacing-lg);
+    text-align: center;
+    color: var(--text-secondary);
 }

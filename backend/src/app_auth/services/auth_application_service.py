@@ -3,8 +3,7 @@
 
 负责协调领域服务和基础设施，处理认证相关的用例。
 """
-from typing import Optional
-
+from typing import Optional, Any
 from flask import session
 
 from app_auth.domain.domain_service.auth_service import AuthService as DomainAuthService
@@ -14,6 +13,7 @@ from app_auth.domain.value_objects.user_value_objects import (
     Username, Email, Password, UserRole, UserId, UserProfile
 )
 from shared.event_bus import EventBus
+from shared.storage.local_file_storage import LocalFileStorageService
 
 
 class AuthApplicationService:
@@ -42,6 +42,7 @@ class AuthApplicationService:
         self._domain_service = domain_auth_service
         self._user_repo = user_repository
         self._event_bus = event_bus or EventBus.get_instance()
+        self._storage_service = LocalFileStorageService()
     
     def _publish_events(self, user: User) -> None:
         """发布用户聚合根中的领域事件"""
@@ -174,23 +175,29 @@ class AuthApplicationService:
         user_id: str,
         location: Optional[str] = None,
         bio: Optional[str] = None,
-        avatar_url: Optional[str] = None
+        avatar_url: Optional[str] = None,
+        avatar_file: Optional[Any] = None
     ) -> User:
         """更新个人资料"""
         user = self._user_repo.find_by_id(UserId(user_id))
         if not user:
             raise ValueError(f"User with ID {user_id} not found")
 
+        # 处理头像上传
+        new_avatar_url = avatar_url
+        if avatar_file:
+            new_avatar_url = self._storage_service.save(avatar_file, sub_folder="avatars")
+        
         # 获取当前 profile 属性
         current_profile = user.profile
         
         # 构建新 profile
         new_location = location if location is not None else current_profile.location
         new_bio = bio if bio is not None else current_profile.bio
-        new_avatar_url = avatar_url if avatar_url is not None else current_profile.avatar_url
+        final_avatar_url = new_avatar_url if new_avatar_url is not None else current_profile.avatar_url
         
         new_profile_vo = UserProfile(
-            avatar_url=new_avatar_url,
+            avatar_url=final_avatar_url,
             bio=new_bio,
             location=new_location
         )

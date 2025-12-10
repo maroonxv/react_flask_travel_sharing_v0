@@ -65,6 +65,19 @@ class UserRepositoryImpl(IUserRepository):
         if user_po:
             return user_po.to_domain()
         return None
+
+    def find_by_ids(self, user_ids: List[UserId]) -> List[User]:
+        """根据ID列表查找用户
+        
+        Args:
+            user_ids: 用户ID列表
+            
+        Returns:
+            用户列表
+        """
+        ids = [uid.value for uid in user_ids]
+        user_pos = self._user_dao.find_by_ids(ids)
+        return [po.to_domain() for po in user_pos]
     
     def find_by_email(self, email: Email) -> Optional[User]:
         """根据邮箱查找用户

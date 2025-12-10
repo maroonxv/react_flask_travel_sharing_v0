@@ -216,15 +216,34 @@ def update_profile():
     if not user_id:
         return jsonify({'error': 'Not authenticated'}), 401
         
-    data = request.get_json()
     service = get_auth_service()
     
     try:
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            location = request.form.get('location')
+            bio = request.form.get('bio')
+            avatar_url = request.form.get('avatar_url') # allow manually setting url
+            avatar_file = request.files.get('avatar')
+        else:
+            data = request.get_json()
+            location = data.get('location')
+            bio = data.get('bio')
+            avatar_url = data.get('avatar_url')
+            avatar_file = None
+        
+        # update_profile handles optional params, so None means no change
+        # Note: if client sends null in json, data.get returns None.
+        # But if key is missing, data.get also returns None.
+        # Ideally we should differentiate "set to null" vs "no change".
+        # But for this simple app, we assume None means no change.
+        # If we want to clear bio, client should send empty string "".
+        
         user = service.update_profile(
             user_id=user_id,
-            location=data.get('location'),
-            bio=data.get('bio'),
-            avatar_url=data.get('avatar_url')
+            location=location,
+            bio=bio,
+            avatar_url=avatar_url,
+            avatar_file=avatar_file
         )
         g.session.commit()
         return jsonify(serialize_user(user)), 200

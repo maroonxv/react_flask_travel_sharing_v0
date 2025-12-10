@@ -1,14 +1,35 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, MapPin } from 'lucide-react';
 import Card from './Card';
 import styles from './PostCard.module.css';
+import { likePost } from '../api/social';
 
 const PostCard = ({ post }) => {
+    const [likes, setLikes] = useState(post.like_count || 0);
+    const [isLiked, setIsLiked] = useState(post.is_liked || false);
+
+    const handleLike = async () => {
+        try {
+            const data = await likePost(post.id);
+            setIsLiked(data.is_liked);
+            setLikes(prev => data.is_liked ? prev + 1 : prev - 1);
+        } catch (error) {
+            console.error("Failed to like post", error);
+        }
+    };
+
     return (
         <Card className={styles.postCard}>
             <div className={styles.header}>
                 <div className={styles.userInfo}>
-                    <div className={styles.avatar}>{post.author_name?.charAt(0).toUpperCase()}</div>
+                    <div className={styles.avatar}>
+                        {post.author_avatar ? (
+                             <img src={post.author_avatar} alt={post.author_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                            post.author_name?.charAt(0).toUpperCase()
+                        )}
+                    </div>
                     <span className={styles.username}>{post.author_name}</span>
                 </div>
                 <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
@@ -46,9 +67,9 @@ const PostCard = ({ post }) => {
             </div>
 
             <div className={styles.actions}>
-                <button className={styles.actionBtn}>
-                    <Heart size={20} />
-                    <span>{post.likes_count || 0}</span>
+                <button className={styles.actionBtn} onClick={handleLike} style={{ color: isLiked ? '#ef4444' : 'inherit' }}>
+                    <Heart size={20} fill={isLiked ? '#ef4444' : 'none'} />
+                    <span>{likes}</span>
                 </button>
                 <Link to={`/social/post/${post.id}`} className={styles.actionBtn}>
                     <MessageCircle size={20} />

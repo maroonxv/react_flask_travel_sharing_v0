@@ -47,7 +47,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     const updateProfile = async (profileData) => {
-        const { data } = await client.put('/auth/me/profile', profileData);
+        const config = {};
+        if (profileData instanceof FormData) {
+            // When sending FormData, let the browser set the Content-Type with boundary
+            // We explicitly set it to multipart/form-data to override the default application/json
+            config.headers = { 'Content-Type': 'multipart/form-data' };
+        }
+        const { data } = await client.put('/auth/me/profile', profileData, config);
         setUser(data);
         return data;
     };

@@ -16,6 +16,8 @@ const ManageProfilePage = () => {
         bio: '',
         location: ''
     });
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
     
     // Password State
     const [passData, setPassData] = useState({ 
@@ -33,15 +35,40 @@ const ManageProfilePage = () => {
                 bio: user.profile.bio || '',
                 location: user.profile.location || ''
             });
+            if (user.profile.avatar_url) {
+                setAvatarPreview(user.profile.avatar_url);
+            }
         }
     }, [user]);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setAvatarFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage({ type: '', text: '' });
         try {
-            await updateProfile(profileData);
+            const formData = new FormData();
+            formData.append('bio', profileData.bio);
+            formData.append('location', profileData.location);
+            if (avatarFile) {
+                formData.append('avatar', avatarFile);
+            } else if (avatarPreview && user.profile.avatar_url === avatarPreview) {
+                // Keep existing avatar URL if no new file
+                formData.append('avatar_url', user.profile.avatar_url);
+            }
+
+            await updateProfile(formData);
             setMessage({ type: 'success', text: '个人资料已更新' });
         } catch (error) {
             setMessage({ type: 'error', text: error.response?.data?.error || '更新失败' });
@@ -99,6 +126,42 @@ const ManageProfilePage = () => {
             <div className={styles.grid}>
                 <Card title="基本资料" className={styles.infoCard}>
                     <form onSubmit={handleProfileUpdate}>
+                        <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+                            <div style={{ 
+                                width: '100px', 
+                                height: '100px', 
+                                borderRadius: '50%', 
+                                overflow: 'hidden', 
+                                margin: '0 auto 1rem',
+                                backgroundColor: '#f3f4f6',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '2px solid var(--border-color)'
+                            }}>
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <User size={48} color="#9ca3af" />
+                                )}
+                            </div>
+                            <label htmlFor="avatar-upload" style={{ 
+                                cursor: 'pointer', 
+                                color: 'var(--primary-color)', 
+                                fontWeight: 500,
+                                fontSize: '0.9rem'
+                            }}>
+                                更换头像
+                            </label>
+                            <input 
+                                id="avatar-upload" 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleFileChange} 
+                                style={{ display: 'none' }} 
+                            />
+                        </div>
+
                         <Input
                             label="居住地"
                             value={profileData.location}

@@ -26,6 +26,18 @@ class IUserDao(ABC):
         pass
     
     @abstractmethod
+    def find_by_ids(self, user_ids: List[str]) -> List[UserPO]:
+        """根据ID列表查找用户
+        
+        Args:
+            user_ids: 用户ID列表
+            
+        Returns:
+            用户持久化对象列表
+        """
+        pass
+    
+    @abstractmethod
     def find_by_email(self, email: str) -> Optional[UserPO]:
         """根据邮箱查找用户
         

@@ -15,6 +15,12 @@ class SqlAlchemyUserDao(IUserDao):
         stmt = select(UserPO).where(UserPO.id == user_id)
         return self.session.execute(stmt).scalars().first()
 
+    def find_by_ids(self, user_ids: List[str]) -> List[UserPO]:
+        if not user_ids:
+            return []
+        stmt = select(UserPO).where(UserPO.id.in_(user_ids))
+        return list(self.session.execute(stmt).scalars().all())
+
     def find_by_email(self, email: str) -> Optional[UserPO]:
         stmt = select(UserPO).where(UserPO.email == email)
         return self.session.execute(stmt).scalars().first()
