@@ -206,12 +206,34 @@ class FriendshipService:
         finally:
             session.close()
 
-    def get_friends(self, user_id: str) -> List[str]:
+    def get_friends(self, user_id: str) -> List[Dict[str, Any]]:
         session = SessionLocal()
         try:
             dao = SqlAlchemyFriendshipDao(session)
             repo = FriendshipRepositoryImpl(dao)
-            return repo.find_friends(user_id)
+            friend_ids = repo.find_friends(user_id)
+            
+            if not friend_ids:
+                return []
+                
+            # Enrich with user info
+            from app_auth.infrastructure.database.dao_impl.sqlalchemy_user_dao import SqlAlchemyUserDao
+            from app_auth.infrastructure.database.repository_impl.user_repository_impl import UserRepositoryImpl
+            from app_auth.domain.value_objects.user_value_objects import UserId
+            
+            user_dao = SqlAlchemyUserDao(session)
+            user_repo = UserRepositoryImpl(user_dao)
+            
+            users = user_repo.find_by_ids([UserId(uid) for uid in friend_ids])
+            results = []
+            for u in users:
+                results.append({
+                    "id": u.id.value,
+                    "name": u.username.value,
+                    "avatar": u.profile.avatar_url,
+                    "bio": u.profile.bio
+                })
+            return results
         finally:
             session.close()
 

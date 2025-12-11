@@ -57,7 +57,7 @@ export const getConversations = async () => {
 };
 
 export const createConversation = async (targetUserId) => {
-    const response = await client.post('/social/conversations', { target_user_id: targetUserId });
+    const response = await client.post('/social/conversations', { target_id: targetUserId });
     return response.data;
 };
 
@@ -100,7 +100,7 @@ export const rejectFriendRequest = async (requestId) => {
 
 export const getFriends = async () => {
     const response = await client.get('/social/friends');
-    return response.data;
+    return response.data.friends;
 };
 
 export const getFriendshipStatus = async (targetUserId) => {
