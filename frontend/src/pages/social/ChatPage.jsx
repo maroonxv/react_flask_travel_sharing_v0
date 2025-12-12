@@ -10,10 +10,7 @@ import {
     createConversation
 } from '../../api/social';
 import { useAuth } from '../../context/AuthContext';
-import Input from '../../components/Input';
-import Button from '../../components/Button';
-import Card from '../../components/Card';
-import { Send, User, Check, X, MessageSquare } from 'lucide-react';
+import { Send, User, Check, X, MessageSquare, ArrowLeft, Paperclip, Smile } from 'lucide-react';
 import styles from './ChatPage.module.css';
 
 const ChatPage = () => {
@@ -59,8 +56,8 @@ const ChatPage = () => {
             setConversations(Array.isArray(convsData) ? convsData : []);
             setFriends(Array.isArray(friendsData) ? friendsData : []);
 
-            // Set active conversation if none selected and conversations exist
-            if (Array.isArray(convsData) && convsData.length > 0 && !activeConvId) {
+            // On desktop, auto-select first conversation
+            if (window.innerWidth > 900 && Array.isArray(convsData) && convsData.length > 0 && !activeConvId) {
                 setActiveConvId(convsData[0].id);
             }
         } catch (error) {
@@ -86,19 +83,32 @@ const ChatPage = () => {
         try {
             await sendMessage(activeConvId, newMessage);
             setNewMessage('');
-            loadMessages(activeConvId); // Refresh messages
-            // Also refresh conversations to update last message preview if we had one
+            loadMessages(activeConvId); 
             const convs = await getConversations();
             setConversations(convs);
         } catch (error) {
             console.error("Failed to send message", error);
         }
     };
+    
+    const handleInput = (e) => {
+        setNewMessage(e.target.value);
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend(e);
+            // Reset height
+            e.target.style.height = 'auto';
+        }
+    };
 
     const handleAcceptRequest = async (id) => {
         try {
             await acceptFriendRequest(id);
-            // Reload all data to update requests, friends list, and conversations (if chat created)
             loadAllData();
         } catch (err) {
             alert(err.message);
@@ -117,182 +127,194 @@ const ChatPage = () => {
     const handleStartChat = async (friendId) => {
         try {
             const result = await createConversation(friendId);
-            // result should be the conversation object (or contains id)
-            // If backend returns { conversation_id: ... } or full object.
-            // Let's assume full object or we fetch conversations again.
-            
-            // Reload conversations to ensure it's in the list
             const convs = await getConversations();
             setConversations(convs);
             
-            // Find the conversation with this friend
-            // If result has id, use it.
             const convId = result.id || result.conversation_id;
             if (convId) {
                 setActiveConvId(convId);
             } else {
                 // Fallback: look for conversation with this friend
-                const target = convs.find(c => c.participants && c.participants.includes(friendId)); // Logic depends on data structure
-                // Simplified: The backend `createConversation` likely returns the ID.
-                // If not, we might need to rely on the reload.
+                const target = convs.find(c => c.participants && c.participants.includes(friendId)); 
+                if (target) setActiveConvId(target.id);
             }
-            
-            if (convId) setActiveConvId(convId);
-            
         } catch (err) {
             console.error("Failed to start chat", err);
             alert("Could not start chat");
         }
     };
 
-    // Helper to get conversation name
     const getConvName = (conv) => {
         return conv.name || conv.other_user_name || "Chat";
     };
 
-    return (
-        <div className={styles.container}>
-            <Card className={styles.sidebar} contentClassName={styles.cardContent} title="消息中心">
-                <div className={styles.conversationList}>
-                    
-                    {/* Friend Requests Section - Conditional */}
-                    {requests.length > 0 && (
-                        <div className={styles.section}>
-                            <h4 style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.9em', color: '#888', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                好友请求
-                            </h4>
-                            <div style={{ padding: '10px' }}>
-                                {requests.map(req => (
-                                    <div key={req.id} style={{
-                                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                        padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', marginBottom: '5px'
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                                            {req.other_user?.avatar ? (
-                                                <img src={req.other_user.avatar} alt="" style={{ width: 24, height: 24, borderRadius: '50%' }} />
-                                            ) : (
-                                                <User size={24} />
-                                            )}
-                                            <span style={{ fontSize: '0.9em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                {req.other_user?.name || "Unknown"}
-                                            </span>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '5px' }}>
-                                            <button onClick={() => handleAcceptRequest(req.id)} style={{ border: 'none', background: 'green', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '4px' }}>
-                                                <Check size={14} />
-                                            </button>
-                                            <button onClick={() => handleRejectRequest(req.id)} style={{ border: 'none', background: 'red', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '4px' }}>
-                                                <X size={14} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+    const formatTime = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '';
+        
+        const now = new Date();
+        const diff = now - date;
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        if (diff < oneDay && now.getDate() === date.getDate()) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        } else if (diff < 7 * oneDay) {
+            return date.toLocaleDateString([], { weekday: 'short' });
+        } else {
+            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+    };
 
-                    {/* Friends List Section */}
-                    <div className={styles.section}>
-                        <h4 style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.9em', color: '#888', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                            所有好友
-                        </h4>
-                        <div style={{ padding: '5px' }}>
-                            {friends.length === 0 && <div style={{textAlign:'center', fontSize: '0.8em', color: '#666', padding: '10px'}}>暂无好友</div>}
-                            {friends.map(friend => (
-                                <div key={friend.id} 
-                                    onClick={() => handleStartChat(friend.id)}
-                                    style={{
-                                        display: 'flex', alignItems: 'center', gap: '10px',
-                                        padding: '8px', cursor: 'pointer', borderRadius: '8px',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    className={styles.friendItem}
-                                >
-                                    {friend.avatar ? (
-                                        <img src={friend.avatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <User size={16} />
-                                        </div>
-                                    )}
-                                    <span style={{ fontSize: '0.9em', flex: 1 }}>{friend.name}</span>
-                                    <MessageSquare size={14} color="#888" />
+    const activeConv = conversations.find(c => c.id === activeConvId);
+
+    return (
+        <div className={`${styles.container} ${activeConvId ? styles.viewChat : ''}`}>
+            {/* Left Sidebar */}
+            <div className={styles.sidebar}>
+                <div className={styles.sidebarHeader}>
+                    <span className={styles.sidebarTitle}>Messages</span>
+                </div>
+                
+                <div className={styles.conversationList}>
+                    {/* Friend Requests */}
+                    {requests.length > 0 && (
+                        <>
+                            <div className={styles.sectionTitle}>Requests</div>
+                            {requests.map(req => (
+                                <div key={req.id} className={styles.listItem}>
+                                    <div className={styles.avatar}>
+                                        {req.other_user?.avatar ? (
+                                            <img src={req.other_user.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                                        ) : <User size={20} />}
+                                    </div>
+                                    <span className={styles.itemName}>{req.other_user?.name || "Unknown"}</span>
+                                    <div className={styles.itemMeta} style={{display: 'flex', gap: 8}}>
+                                        <button onClick={(e) => { e.stopPropagation(); handleAcceptRequest(req.id); }} style={{color: '#4ade80'}}><Check size={18}/></button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleRejectRequest(req.id); }} style={{color: '#f87171'}}><X size={18}/></button>
+                                    </div>
+                                    <span className={styles.itemPreview}>Friend Request</span>
                                 </div>
                             ))}
-                        </div>
-                    </div>
+                        </>
+                    )}
 
-                    {/* Conversations Section */}
-                    <div className={styles.section}>
-                        <h4 style={{ textAlign: 'center', padding: '10px 0', fontSize: '0.9em', color: '#888', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                            会话
-                        </h4>
-                        {loading && <div className={styles.loading}>加载中...</div>}
-                        {!loading && conversations.length === 0 && (
-                            <div className={styles.emptyState}>暂无会话</div>
-                        )}
-                        {conversations.map(conv => (
-                            <div
-                                key={conv.id}
-                                className={`${styles.convItem} ${activeConvId === conv.id ? styles.activeConv : ''}`}
-                                onClick={() => setActiveConvId(conv.id)}
-                            >
-                                <div className={styles.avatar}>
-                                    {getConvName(conv).charAt(0).toUpperCase()}
+                    {/* Friends List */}
+                    {friends.length > 0 && (
+                        <>
+                            <div className={styles.sectionTitle}>Friends</div>
+                            {friends.map(friend => (
+                                <div key={friend.id} className={styles.listItem} onClick={() => handleStartChat(friend.id)}>
+                                    <div className={styles.avatar}>
+                                        {friend.avatar ? (
+                                            <img src={friend.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                                        ) : <User size={20} />}
+                                    </div>
+                                    <span className={styles.itemName}>{friend.name}</span>
+                                    <span className={styles.itemPreview}>Click to chat</span>
                                 </div>
-                                <div className={styles.convInfo}>
-                                    <span className={styles.convName}>{getConvName(conv)}</span>
-                                    {conv.last_message && (
-                                        <span className={styles.lastMsg}>
-                                            {conv.last_message.content?.substring(0, 20)}
-                                            {conv.last_message.content?.length > 20 ? '...' : ''}
-                                        </span>
-                                    )}
-                                </div>
+                            ))}
+                        </>
+                    )}
+
+                    {/* Conversations */}
+                    <div className={styles.sectionTitle}>Chats</div>
+                    {loading && <div style={{padding: 20, textAlign: 'center', color: '#666'}}>Loading...</div>}
+                    {!loading && conversations.length === 0 && (
+                        <div style={{padding: 20, textAlign: 'center', color: '#666'}}>No active chats</div>
+                    )}
+                    {conversations.map(conv => (
+                        <div
+                            key={conv.id}
+                            className={`${styles.listItem} ${activeConvId === conv.id ? styles.active : ''}`}
+                            onClick={() => setActiveConvId(conv.id)}
+                        >
+                            <div className={styles.avatar}>
+                                {getConvName(conv).charAt(0).toUpperCase()}
                             </div>
-                        ))}
-                    </div>
+                            <span className={styles.itemName}>{getConvName(conv)}</span>
+                            <span className={styles.itemMeta}>
+                                {conv.last_message ? formatTime(conv.last_message.created_at) : ''}
+                            </span>
+                            <span className={styles.itemPreview}>
+                                {conv.last_message?.content || 'No messages yet'}
+                            </span>
+                        </div>
+                    ))}
                 </div>
-            </Card>
+            </div>
 
+            {/* Right Chat Area */}
             <div className={styles.chatArea}>
                 {activeConvId ? (
                     <>
                         <div className={styles.chatHeader}>
-                            {conversations.find(c => c.id === activeConvId) ? getConvName(conversations.find(c => c.id === activeConvId)) : 'Chat'}
+                            <button className={styles.backButton} onClick={() => setActiveConvId(null)}>
+                                <ArrowLeft size={24} />
+                            </button>
+                            <div className={styles.avatar} style={{width: 40, height: 40, fontSize: '1rem'}}>
+                                {getConvName(activeConv || {}).charAt(0).toUpperCase()}
+                            </div>
+                            <div className={styles.headerInfo}>
+                                <span className={styles.headerName}>
+                                    {activeConv ? getConvName(activeConv) : 'Chat'}
+                                </span>
+                                <span className={styles.headerStatus}>online</span>
+                            </div>
                         </div>
+
                         <div className={styles.messages}>
                             {messages.map((msg, index) => {
                                 const isMe = msg.sender_id === user?.id;
+                                const prevMsg = messages[index - 1];
+                                const isChain = prevMsg && prevMsg.sender_id === msg.sender_id;
+                                
                                 return (
-                                    <div key={msg.id || index} className={`${styles.messageRow} ${isMe ? styles.myMessageRow : ''}`}>
-                                        <div className={`${styles.messageBubble} ${isMe ? styles.myMessage : styles.otherMessage}`}>
+                                    <div 
+                                        key={msg.id || index} 
+                                        className={`${styles.messageRow} ${isMe ? styles.me : ''}`}
+                                        data-chain={!isChain ? "first" : ""}
+                                    >
+                                        <div className={styles.messageBubble}>
                                             {msg.content}
+                                            <span className={styles.time}>
+                                                {formatTime(msg.created_at)}
+                                            </span>
                                         </div>
-                                        <span className={styles.time}>
-                                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
                                     </div>
                                 );
                             })}
                             <div ref={messagesEndRef} />
                         </div>
-                        <form onSubmit={handleSend} className={styles.inputArea}>
-                            <Input
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder="Type a message..."
-                                className={styles.messageInput}
-                            />
-                            <Button type="submit" disabled={!newMessage.trim()}>
-                                <Send size={18} />
-                            </Button>
-                        </form>
+
+                        <div className={styles.inputContainer}>
+                            <form onSubmit={handleSend} className={styles.inputWrapper}>
+                                <button type="button" className={styles.attachBtn}>
+                                    <Paperclip size={20} />
+                                </button>
+                                <textarea
+                                    value={newMessage}
+                                    onChange={handleInput}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Message..."
+                                    className={styles.inputField}
+                                    rows={1}
+                                />
+                                <button type="button" className={styles.attachBtn}>
+                                    <Smile size={20} />
+                                </button>
+                                <button type="submit" className={styles.sendBtn} disabled={!newMessage.trim()}>
+                                    <Send size={20} />
+                                </button>
+                            </form>
+                        </div>
                     </>
                 ) : (
-                    <div className={styles.noChatSelected}>
-                        <MessageSquare size={48} color="#444" />
-                        <p>Select a friend or conversation to start chatting</p>
+                    <div className={styles.noChat}>
+                        <div className={styles.noChatIcon}>
+                            <MessageSquare size={32} />
+                        </div>
+                        <p>Select a chat to start messaging</p>
                     </div>
                 )}
             </div>

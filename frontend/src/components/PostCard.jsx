@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, MapPin, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, MapPin, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Card from './Card';
 import styles from './PostCard.module.css';
 import { likePost, deletePost } from '../api/social';
@@ -11,6 +11,7 @@ const PostCard = ({ post, onDelete }) => {
     const [likes, setLikes] = useState(post.like_count || 0);
     const [isLiked, setIsLiked] = useState(post.is_liked || false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handleLike = async () => {
         try {
@@ -71,11 +72,42 @@ const PostCard = ({ post, onDelete }) => {
 
             {post.media_urls && post.media_urls.length > 0 && (
                 <div className={styles.imageContainer}>
-                    <img src={post.media_urls[0]} alt={post.title} className={styles.image} />
+                    <img 
+                        src={post.media_urls[currentImageIndex]} 
+                        alt={`${post.title} - ${currentImageIndex + 1}`} 
+                        className={styles.image} 
+                    />
+                    
                     {post.media_urls.length > 1 && (
-                        <div className={styles.imageCount}>
-                            +{post.media_urls.length - 1}
-                        </div>
+                        <>
+                            <button 
+                                className={`${styles.navBtn} ${styles.prevBtn}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setCurrentImageIndex(prev => 
+                                        prev === 0 ? post.media_urls.length - 1 : prev - 1
+                                    );
+                                }}
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <button 
+                                className={`${styles.navBtn} ${styles.nextBtn}`}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setCurrentImageIndex(prev => 
+                                        prev === post.media_urls.length - 1 ? 0 : prev + 1
+                                    );
+                                }}
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                            <div className={styles.indicator}>
+                                {currentImageIndex + 1} / {post.media_urls.length}
+                            </div>
+                        </>
                     )}
                 </div>
             )}

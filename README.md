@@ -99,7 +99,7 @@ cd travel_sharing_app_v0/backend
 pip install -r requirements.txt
 
 # 启动应用
-travel_sharing_app_v0\backend\.venv\Scripts\python.exe src/app.py
+.venv\Scripts\python.exe src/app.py
 ```
 
 ### 3. 启动前端服务器

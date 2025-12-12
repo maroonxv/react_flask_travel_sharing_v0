@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, g, session
 from sqlalchemy.exc import IntegrityError
 import datetime
+from decimal import Decimal
 
 from shared.database.core import SessionLocal
 from app_admin.registry import get_model_class
@@ -44,8 +45,11 @@ def _serialize(obj):
     for c in obj.__table__.columns:
         val = getattr(obj, c.name)
         # 处理时间格式
-        if isinstance(val, (datetime.datetime, datetime.date)):
+        if isinstance(val, (datetime.datetime, datetime.date, datetime.time)):
             val = val.isoformat()
+        # 处理 Decimal 类型
+        elif isinstance(val, Decimal):
+            val = float(val)
         data[c.name] = val
     return data
 
