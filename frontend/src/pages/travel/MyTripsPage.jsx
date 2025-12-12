@@ -70,9 +70,9 @@ const MyTripsPage = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>我的旅行</h1>
+        <div>
+            <div className={styles.header} style={{ borderBottom: 'none', marginBottom: '1rem', paddingBottom: 0 }}>
+                <div /> {/* Spacer or empty title */}
                 <Button variant="travel" onClick={() => setShowModal(true)}>
                     <Plus size={20} style={{ marginRight: '0.5rem' }} />
                     新建旅行

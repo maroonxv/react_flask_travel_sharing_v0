@@ -315,9 +315,10 @@ def list_public_trips():
     """获取公开旅行"""
     limit = int(request.args.get('limit', 20))
     offset = int(request.args.get('offset', 0))
+    search_query = request.args.get('search') or request.args.get('q')
     service = get_travel_service()
     
-    trips = service.list_public_trips(limit, offset)
+    trips = service.list_public_trips(limit, offset, search_query)
     return jsonify([serialize_trip(t) for t in trips])
 
 @travel_bp.route('/trips/<trip_id>/members/<user_id>', methods=['DELETE'])

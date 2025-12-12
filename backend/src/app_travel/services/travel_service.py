@@ -234,9 +234,9 @@ class TravelService:
         """获取用户创建的旅行列表"""
         return self._trip_repository.find_by_creator(creator_id)
     
-    def list_public_trips(self, limit: int = 20, offset: int = 0) -> List[Trip]:
+    def list_public_trips(self, limit: int = 20, offset: int = 0, search_query: Optional[str] = None) -> List[Trip]:
         """获取公开的旅行列表"""
-        return self._trip_repository.find_public(limit, offset)
+        return self._trip_repository.find_public(limit, offset, search_query)
     
     # ==================== 成员管理 ====================
     

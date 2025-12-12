@@ -130,17 +130,18 @@ class TripRepositoryImpl(ITripRepository):
         trip_pos = self._trip_dao.find_by_creator(creator_id)
         return [po.to_domain() for po in trip_pos]
     
-    def find_public(self, limit: int = 20, offset: int = 0) -> List[Trip]:
+    def find_public(self, limit: int = 20, offset: int = 0, search_query: Optional[str] = None) -> List[Trip]:
         """查找公开的旅行
         
         Args:
             limit: 每页数量
             offset: 偏移量
+            search_query: 搜索关键词
             
         Returns:
             旅行列表
         """
-        trip_pos = self._trip_dao.find_public(limit, offset)
+        trip_pos = self._trip_dao.find_public(limit, offset, search_query)
         return [po.to_domain() for po in trip_pos]
     
     def delete(self, trip_id: TripId) -> None:

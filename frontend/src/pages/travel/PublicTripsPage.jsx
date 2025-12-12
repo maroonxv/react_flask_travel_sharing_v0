@@ -3,14 +3,15 @@ import { getPublicTrips } from '../../api/travel';
 import TripCard from '../../components/TripCard';
 import styles from './TravelList.module.css';
 
-const PublicTripsPage = () => {
+const PublicTripsPage = ({ searchQuery }) => {
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchTrips = async () => {
+            setLoading(true);
             try {
-                const data = await getPublicTrips();
+                const data = await getPublicTrips(searchQuery);
                 setTrips(Array.isArray(data) ? data : (data.trips || []));
             } catch (error) {
                 console.error("Failed to fetch public trips", error);
@@ -19,15 +20,10 @@ const PublicTripsPage = () => {
             }
         };
         fetchTrips();
-    }, []);
+    }, [searchQuery]);
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>公开旅行广场</h1>
-                <p className={styles.subtitle}>探索他人分享的精彩旅程</p>
-            </div>
-
+        <div>
             {loading ? (
                 <div className={styles.loading}>加载旅行中...</div>
             ) : (
@@ -35,7 +31,9 @@ const PublicTripsPage = () => {
                     {trips.length > 0 ? (
                         trips.map(trip => <TripCard key={trip.id} trip={trip} />)
                     ) : (
-                        <div className={styles.empty}>暂无公开旅行。</div>
+                        <div className={styles.empty}>
+                            {searchQuery ? '没有找到匹配的旅行。' : '暂无公开旅行。'}
+                        </div>
                     )}
                 </div>
             )}

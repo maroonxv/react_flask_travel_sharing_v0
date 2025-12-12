@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, MapPin, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, MapPin, Trash2 } from 'lucide-react';
 import Card from './Card';
 import styles from './PostCard.module.css';
 import { likePost, deletePost } from '../api/social';
@@ -8,10 +8,11 @@ import { useAuth } from '../context/AuthContext';
 
 const PostCard = ({ post, onDelete }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [likes, setLikes] = useState(post.like_count || 0);
     const [isLiked, setIsLiked] = useState(post.is_liked || false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const handleLike = async () => {
         try {
@@ -31,8 +32,6 @@ const PostCard = ({ post, onDelete }) => {
             if (onDelete) {
                 onDelete(post.id);
             } else {
-                // If no callback, maybe just hide it or reload?
-                // Reloading is safe but jarring.
                 window.location.reload();
             }
         } catch (error) {
@@ -42,21 +41,66 @@ const PostCard = ({ post, onDelete }) => {
         }
     };
 
+    const handleImageClick = (e, index) => {
+        e.preventDefault();
+        // MVP: 点击图片跳转到详情页
+        navigate(`/social/post/${post.id}`);
+    };
+
+    const renderMediaGrid = () => {
+        if (!post.media_urls || post.media_urls.length === 0) return null;
+
+        const count = post.media_urls.length;
+        let gridClass = styles.grid1;
+        let showCount = count;
+
+        if (count === 2) {
+            gridClass = styles.grid2;
+        } else if (count === 3) {
+            gridClass = styles.grid3;
+        } else if (count >= 4) {
+            gridClass = styles.grid4;
+            showCount = 4; // 只显示前4张
+        }
+
+        return (
+            <div className={`${styles.mediaGrid} ${gridClass}`}>
+                {post.media_urls.slice(0, showCount).map((url, index) => (
+                    <div 
+                        key={index} 
+                        className={styles.mediaItem}
+                        onClick={(e) => handleImageClick(e, index)}
+                    >
+                        <img src={url} alt={`Post media ${index + 1}`} className={styles.image} />
+                        {count > 4 && index === 3 && (
+                            <div className={styles.moreOverlay}>
+                                +{count - 4}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <Card className={styles.postCard}>
+            {/* 1. Header: User Info & Actions */}
             <div className={styles.header}>
                 <Link to={`/users/${post.author_id}`} className={styles.userInfo} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className={styles.avatar}>
                         {post.author_avatar ? (
-                             <img src={post.author_avatar} alt={post.author_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             <img src={post.author_avatar} alt={post.author_name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
                         ) : (
                             post.author_name?.charAt(0).toUpperCase()
                         )}
                     </div>
-                    <span className={styles.username}>{post.author_name}</span>
+                    <div>
+                        <div className={styles.username}>{post.author_name}</div>
+                        <div className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</div>
+                    </div>
                 </Link>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span className={styles.date}>{new Date(post.created_at).toLocaleDateString()}</span>
                     {user && user.id === post.author_id && (
                         <button 
                             onClick={handleDelete} 
@@ -70,63 +114,37 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             </div>
 
-            {post.media_urls && post.media_urls.length > 0 && (
-                <div className={styles.imageContainer}>
-                    <img 
-                        src={post.media_urls[currentImageIndex]} 
-                        alt={`${post.title} - ${currentImageIndex + 1}`} 
-                        className={styles.image} 
-                    />
-                    
-                    {post.media_urls.length > 1 && (
-                        <>
-                            <button 
-                                className={`${styles.navBtn} ${styles.prevBtn}`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setCurrentImageIndex(prev => 
-                                        prev === 0 ? post.media_urls.length - 1 : prev - 1
-                                    );
-                                }}
-                            >
-                                <ChevronLeft size={20} />
-                            </button>
-                            <button 
-                                className={`${styles.navBtn} ${styles.nextBtn}`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setCurrentImageIndex(prev => 
-                                        prev === post.media_urls.length - 1 ? 0 : prev + 1
-                                    );
-                                }}
-                            >
-                                <ChevronRight size={20} />
-                            </button>
-                            <div className={styles.indicator}>
-                                {currentImageIndex + 1} / {post.media_urls.length}
-                            </div>
-                        </>
-                    )}
-                </div>
-            )}
-
+            {/* 2. Content: Title & Text */}
             <div className={styles.content}>
                 <Link to={`/social/post/${post.id}`} className={styles.titleLink}>
                     <h3 className={styles.title}>{post.title || '无标题帖子'}</h3>
                 </Link>
-                <p className={styles.text}>{post.content}</p>
+                
+                <div className={styles.textContainer}>
+                    <p className={`${styles.text} ${!isExpanded ? styles.textCollapsed : ''}`}>
+                        {post.content}
+                    </p>
+                    {/* 简单的判断：如果字数很多才显示展开按钮。这里暂时简单处理，或者一直显示如果被截断。
+                        由于 CSS line-clamp 很难检测是否溢出，这里用字数做一个近似判断 */}
+                    {post.content && post.content.length > 100 && (
+                        <button 
+                            className={styles.expandBtn}
+                            onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                            {isExpanded ? '收起' : '展开全文'}
+                        </button>
+                    )}
+                </div>
 
                 {post.trip && (
                     <div className={styles.tripLink}>
-                        <MapPin size={16} />
+                        <MapPin size={14} />
                         {post.trip.is_public ? (
                             <Link to={`/travel/trips/${post.trip.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
-                                关联旅行: {post.trip.title}
+                                {post.trip.title}
                             </Link>
                         ) : (
-                            <span>关联旅行: {post.trip.title}</span>
+                            <span>{post.trip.title}</span>
                         )}
                     </div>
                 )}
@@ -134,7 +152,7 @@ const PostCard = ({ post, onDelete }) => {
                 {post.tags && post.tags.length > 0 && (
                     <div className={styles.tags}>
                         {post.tags.map((tag, idx) => (
-                            <Link key={idx} to={`/social?tag=${tag}`} className={styles.tag} style={{ textDecoration: 'none', color: '#3b82f6' }}>
+                            <Link key={idx} to={`/social?tag=${tag}`} className={styles.tag} style={{ textDecoration: 'none' }}>
                                 #{tag}
                             </Link>
                         ))}
@@ -142,14 +160,18 @@ const PostCard = ({ post, onDelete }) => {
                 )}
             </div>
 
+            {/* 3. Media: Grid Layout */}
+            {renderMediaGrid()}
+
+            {/* 4. Footer: Actions */}
             <div className={styles.actions}>
                 <button className={styles.actionBtn} onClick={handleLike} style={{ color: isLiked ? '#ef4444' : 'inherit' }}>
-                    <Heart size={20} fill={isLiked ? '#ef4444' : 'none'} />
-                    <span>{likes}</span>
+                    <Heart size={18} fill={isLiked ? '#ef4444' : 'none'} />
+                    <span>{likes || '点赞'}</span>
                 </button>
                 <Link to={`/social/post/${post.id}`} className={styles.actionBtn}>
-                    <MessageCircle size={20} />
-                    <span>{post.comment_count || 0}</span>
+                    <MessageCircle size={18} />
+                    <span>{post.comment_count || '评论'}</span>
                 </Link>
             </div>
         </Card>

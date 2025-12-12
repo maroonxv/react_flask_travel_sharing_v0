@@ -125,13 +125,15 @@ class PostRepositoryImpl(IPostRepository):
         self,
         limit: int = 20,
         offset: int = 0,
-        tags: Optional[List[str]] = None
+        tags: Optional[List[str]] = None,
+        search_query: Optional[str] = None
     ) -> List[Post]:
         """获取公开帖子流"""
         post_pos = self._post_dao.find_public_feed(
             limit=limit,
             offset=offset,
-            tags=tags
+            tags=tags,
+            search_query=search_query
         )
         return [po.to_domain() for po in post_pos]
     

@@ -192,10 +192,9 @@ def get_feed():
         limit = int(request.args.get('limit', 20))
         offset = int(request.args.get('offset', 0))
         tags = request.args.getlist('tags')
+        search_query = request.args.get('search') or request.args.get('q')
         
-        # 此时 get_public_feed 还不支持 user_id 参数，需要修改 service
-        # 我们先修改 view，然后去修改 service
-        result = social_service.get_public_feed(limit, offset, tags, viewer_id=user_id)
+        result = social_service.get_public_feed(limit, offset, tags, viewer_id=user_id, search_query=search_query)
         return jsonify(result), 200
     except Exception as e:
         return _handle_error(e)

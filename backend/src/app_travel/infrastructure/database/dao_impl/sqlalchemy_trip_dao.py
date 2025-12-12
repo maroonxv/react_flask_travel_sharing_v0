@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete, desc, and_, exists
+from sqlalchemy import select, delete, desc, and_, or_, exists
 
 from app_travel.infrastructure.database.dao_interface.i_trip_dao import ITripDao
 from app_travel.infrastructure.database.persistent_model.trip_po import TripPO, TripMemberPO
@@ -37,11 +37,20 @@ class SqlAlchemyTripDao(ITripDao):
         )
         return list(self.session.execute(stmt).scalars().all())
 
-    def find_public(self, limit: int = 20, offset: int = 0) -> List[TripPO]:
+    def find_public(self, limit: int = 20, offset: int = 0, search_query: Optional[str] = None) -> List[TripPO]:
+        stmt = select(TripPO).where(TripPO.visibility == 'public')
+        
+        if search_query:
+            search_pattern = f"%{search_query}%"
+            stmt = stmt.where(
+                or_(
+                    TripPO.name.ilike(search_pattern),
+                    TripPO.description.ilike(search_pattern)
+                )
+            )
+            
         stmt = (
-            select(TripPO)
-            .where(TripPO.visibility == 'public')
-            .order_by(desc(TripPO.created_at))
+            stmt.order_by(desc(TripPO.created_at))
             .limit(limit)
             .offset(offset)
         )

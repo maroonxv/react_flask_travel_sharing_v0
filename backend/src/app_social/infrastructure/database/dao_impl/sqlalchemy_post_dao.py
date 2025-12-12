@@ -56,7 +56,8 @@ class SqlAlchemyPostDao(IPostDao):
         self,
         limit: int = 20,
         offset: int = 0,
-        tags: Optional[List[str]] = None
+        tags: Optional[List[str]] = None,
+        search_query: Optional[str] = None
     ) -> List[PostPO]:
         stmt = (
             self._get_base_query()
@@ -72,6 +73,15 @@ class SqlAlchemyPostDao(IPostDao):
             # 标签过滤：任一标签匹配即可
             # 使用 PostPO.tags.any(PostTagPO.tag.in_(tags))
             stmt = stmt.where(PostPO.tags.any(PostTagPO.tag.in_(tags)))
+
+        if search_query:
+            search_pattern = f"%{search_query}%"
+            stmt = stmt.where(
+                or_(
+                    PostPO.title.ilike(search_pattern),
+                    PostPO.text.ilike(search_pattern)
+                )
+            )
             
         stmt = stmt.order_by(desc(PostPO.created_at)).limit(limit).offset(offset)
         return list(self.session.execute(stmt).scalars().unique().all())

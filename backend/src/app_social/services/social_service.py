@@ -266,14 +266,14 @@ class SocialService:
         finally:
             session.close()
 
-    def get_public_feed(self, limit: int = 20, offset: int = 0, tags: List[str] = None, viewer_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_public_feed(self, limit: int = 20, offset: int = 0, tags: List[str] = None, viewer_id: Optional[str] = None, search_query: Optional[str] = None) -> List[Dict[str, Any]]:
         """获取公开帖子流"""
         session = SessionLocal()
         try:
             post_dao = SqlAlchemyPostDao(session)
             post_repo = PostRepositoryImpl(post_dao)
             
-            posts = post_repo.find_public_feed(limit, offset, tags)
+            posts = post_repo.find_public_feed(limit, offset, tags, search_query)
             
             # Batch fetch authors
             author_ids = list(set(p.author_id for p in posts))

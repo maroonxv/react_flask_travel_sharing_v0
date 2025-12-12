@@ -7,8 +7,12 @@ export const getUserTrips = async (userId) => {
     return response.data;
 };
 
-export const getPublicTrips = async () => {
-    const response = await client.get('/travel/trips/public');
+export const getPublicTrips = async (search = '') => {
+    let url = '/travel/trips/public';
+    if (search) {
+        url += `?search=${encodeURIComponent(search)}`;
+    }
+    const response = await client.get(url);
     return response.data;
 };
 

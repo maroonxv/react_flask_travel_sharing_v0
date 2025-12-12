@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Search } from 'lucide-react';
 import { getFeed } from '../../api/social';
 import PostCard from '../../components/PostCard';
 import Button from '../../components/Button';
@@ -9,6 +9,11 @@ import styles from './FeedPage.module.css';
 const FeedPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentTag = searchParams.get('tag');
+    const currentSearch = searchParams.get('search') || '';
+    const [tempSearch, setTempSearch] = useState(currentSearch);
+    
+    // New: Filter Tabs State
+    const [activeTab, setActiveTab] = useState('recommend'); // recommend, latest, hot
 
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,12 +22,25 @@ const FeedPage = () => {
     const LIMIT = 10;
 
     useEffect(() => {
+        setTempSearch(currentSearch);
+    }, [currentSearch]);
+
+    useEffect(() => {
         const loadInitial = async () => {
             setLoading(true);
             try {
                 const tags = currentTag ? [currentTag] : [];
-                const data = await getFeed(LIMIT, 0, tags);
+                // Pass activeTab to API if supported later. For now just reloading.
+                // potentially: getFeed(LIMIT, 0, tags, currentSearch, activeTab)
+                const data = await getFeed(LIMIT, 0, tags, currentSearch);
                 const newPosts = Array.isArray(data) ? data : (data.posts || []);
+                
+                // Client-side simple sort for MVP demo if needed, 
+                // but usually better to rely on server. 
+                // Let's just use server order for 'recommend' and 'latest'.
+                // For 'hot', we could try to sort if we had all data, but with pagination it's tricky.
+                // So we just display the data as is, assuming server handles it or will handle it.
+                
                 setPosts(newPosts);
                 setOffset(LIMIT);
                 setHasMore(newPosts.length === LIMIT);
@@ -33,14 +51,14 @@ const FeedPage = () => {
             }
         };
         loadInitial();
-    }, [currentTag]);
+    }, [currentTag, currentSearch, activeTab]); // Reload when tab changes
 
     const handleLoadMore = async () => {
         if (loading) return;
         setLoading(true);
         try {
             const tags = currentTag ? [currentTag] : [];
-            const data = await getFeed(LIMIT, offset, tags);
+            const data = await getFeed(LIMIT, offset, tags, currentSearch);
             const newPosts = Array.isArray(data) ? data : (data.posts || []);
 
             setPosts(prev => {
@@ -57,13 +75,27 @@ const FeedPage = () => {
         }
     };
 
-    const clearTag = () => {
-        setSearchParams({});
+    const handleSearch = (e) => {
+        e.preventDefault();
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            if (tempSearch) newParams.set('search', tempSearch);
+            else newParams.delete('search');
+            return newParams;
+        });
     };
 
-    return (
-        <div className={styles.container}>
-            <div className={styles.header}>
+    const clearTag = () => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.delete('tag');
+            return newParams;
+        });
+    };
+
+    const renderHeader = () => (
+        <div className={styles.header}>
+            <div className={styles.topRow}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <h1 className={styles.title}>
                         {currentTag ? `标签: #${currentTag}` : '社区动态'}
@@ -76,11 +108,53 @@ const FeedPage = () => {
                 </div>
                 <Link to="/social/create">
                     <Button variant="social">
-                        <Plus size={20} style={{ marginRight: '0.5rem' }} />
-                        发布帖子
+                        <Plus size={18} style={{ marginRight: '0.5rem' }} />
+                        发布
                     </Button>
                 </Link>
             </div>
+
+            <div className={styles.searchRow}>
+                <form onSubmit={handleSearch} className={styles.searchForm}>
+                    <Search size={16} className={styles.searchIcon} />
+                    <input 
+                        type="text"
+                        value={tempSearch}
+                        onChange={(e) => setTempSearch(e.target.value)}
+                        placeholder="搜索帖子..."
+                        className={styles.searchInput}
+                    />
+                </form>
+            </div>
+
+            {!currentTag && !currentSearch && (
+                <div className={styles.filterTabs}>
+                    <button 
+                        className={`${styles.filterTab} ${activeTab === 'recommend' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('recommend')}
+                    >
+                        推荐
+                    </button>
+                    <button 
+                        className={`${styles.filterTab} ${activeTab === 'latest' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('latest')}
+                    >
+                        最新
+                    </button>
+                    <button 
+                        className={`${styles.filterTab} ${activeTab === 'hot' ? styles.activeTab : ''}`}
+                        onClick={() => setActiveTab('hot')}
+                    >
+                        热门
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+
+    return (
+        <div className={styles.container}>
+            {renderHeader()}
 
             <div className={styles.feed}>
                 {posts.map(post => (

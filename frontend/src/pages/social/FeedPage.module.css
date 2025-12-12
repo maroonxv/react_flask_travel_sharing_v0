@@ -1,29 +1,110 @@
 .container {
-    max-width: 800px;
+    max-width: 680px; /* 紧凑布局核心 */
     margin: 0 auto;
-    padding: var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .header {
     display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    /* 移除原有的大边框和 padding，让界面更清爽 */
+}
+
+.topRow {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-xl);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
 }
 
 .title {
     margin: 0;
     color: var(--color-social);
-    font-size: 2rem;
-    text-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
+    font-size: 1.5rem; /* 减小标题字号 */
+    font-weight: 700;
+}
+
+.searchRow {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.searchForm {
+    flex: 1;
+    position: relative;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.6rem 0.6rem 0.6rem 2.5rem;
+    border-radius: 20px; /* 圆角更圆润 */
+    border: 1px solid var(--border-color);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.searchInput:focus {
+    border-color: var(--color-social);
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+/* Filter Tabs */
+.filterTabs {
+    display: flex;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.filterTab {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.5rem 0.25rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.filterTab:hover {
+    color: var(--text-primary);
+}
+
+.activeTab {
+    color: var(--color-social);
+    font-weight: 600;
+}
+
+.activeTab::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; /* 对齐 border-bottom */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-social);
 }
 
 .feed {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-md); /* 减小卡片间距 */
 }
 
 .loading,

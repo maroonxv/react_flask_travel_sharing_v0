@@ -1,9 +1,12 @@
 import client from './client';
 
-export const getFeed = async (limit = 20, offset = 0, tags = []) => {
+export const getFeed = async (limit = 20, offset = 0, tags = [], search = '') => {
     let url = `/social/feed?limit=${limit}&offset=${offset}`;
     if (tags && tags.length > 0) {
         tags.forEach(tag => url += `&tags=${encodeURIComponent(tag)}`);
+    }
+    if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
     }
     const response = await client.get(url);
     return response.data;

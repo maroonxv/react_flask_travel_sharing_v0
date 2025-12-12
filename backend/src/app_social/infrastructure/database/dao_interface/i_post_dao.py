@@ -62,7 +62,8 @@ class IPostDao(ABC):
         self,
         limit: int = 20,
         offset: int = 0,
-        tags: Optional[List[str]] = None
+        tags: Optional[List[str]] = None,
+        search_query: Optional[str] = None
     ) -> List[PostPO]:
         """获取公开帖子流
         
@@ -70,6 +71,7 @@ class IPostDao(ABC):
             limit: 每页数量
             offset: 偏移量
             tags: 标签筛选
+            search_query: 搜索关键词
             
         Returns:
             帖子持久化对象列表

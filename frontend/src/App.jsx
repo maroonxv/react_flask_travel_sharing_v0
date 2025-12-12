@@ -18,6 +18,7 @@ import ChatPage from './pages/social/ChatPage';
 // Pages - Travel
 import MyTripsPage from './pages/travel/MyTripsPage';
 import PublicTripsPage from './pages/travel/PublicTripsPage';
+import TravelPage from './pages/travel/TravelPage';
 import TripDetailPage from './pages/travel/TripDetailPage';
 
 // Admin
@@ -52,7 +53,7 @@ function App() {
               <Route path="/chat" element={<ChatPage />} />
 
               {/* Travel */}
-              <Route path="/travel" element={<MyTripsPage />} />
+              <Route path="/travel" element={<TravelPage />} />
               <Route path="/travel/public" element={<PublicTripsPage />} />
               <Route path="/travel/trips/:id" element={<TripDetailPage />} />
 
