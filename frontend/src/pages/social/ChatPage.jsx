@@ -392,9 +392,6 @@ const ChatPage = () => {
                                     >
                                         <div className={styles.messageBubble}>
                                             {msg.content}
-                                            <span className={styles.time}>
-                                                {formatTime(msg.created_at)}
-                                            </span>
                                         </div>
                                     </div>
                                 );
