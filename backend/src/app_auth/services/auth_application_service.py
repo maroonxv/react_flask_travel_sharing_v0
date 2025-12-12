@@ -3,7 +3,7 @@
 
 负责协调领域服务和基础设施，处理认证相关的用例。
 """
-from typing import Optional, Any
+from typing import Optional, Any, List
 from flask import session
 
 from app_auth.domain.domain_service.auth_service import AuthService as DomainAuthService
@@ -149,6 +149,18 @@ class AuthApplicationService:
         """
         return self._user_repo.find_by_id(UserId(user_id))
     
+    def search_users(self, query: str, limit: int = 20) -> List[User]:
+        """搜索用户
+        
+        Args:
+            query: 搜索关键词
+            limit: 限制数量
+            
+        Returns:
+            用户列表
+        """
+        return self._user_repo.search_by_username(query, limit)
+
     def change_password(
         self,
         user_id: str,

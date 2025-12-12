@@ -62,6 +62,19 @@ class IUserDao(ABC):
         pass
     
     @abstractmethod
+    def search_by_username(self, query: str, limit: int = 20) -> List[UserPO]:
+        """根据用户名模糊搜索用户
+        
+        Args:
+            query: 搜索关键词
+            limit: 限制数量
+            
+        Returns:
+            用户持久化对象列表
+        """
+        pass
+    
+    @abstractmethod
     def find_by_role(self, role: str) -> List[UserPO]:
         """根据角色查找用户列表
         

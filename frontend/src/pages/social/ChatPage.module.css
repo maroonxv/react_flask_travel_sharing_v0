@@ -26,6 +26,7 @@
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
+    justify-content: space-between; /* Added for + button */
 }
 
 .sidebarTitle {
@@ -86,6 +87,7 @@
     justify-content: center;
     font-size: 1.2rem;
     color: var(--text-secondary);
+    overflow: hidden; /* Added */
 }
 
 .itemName {
@@ -163,6 +165,7 @@
 .headerInfo {
     display: flex;
     flex-direction: column;
+    cursor: pointer; /* Clickable */
 }
 
 .headerName {
@@ -208,11 +211,11 @@
 
 .messageBubble {
     max-width: 65%;
-    padding: 8px 12px;
+    padding: 10px 16px; /* Increased padding */
     border-radius: var(--radius-lg);
     position: relative;
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-size: 1.05rem; /* Increased font size */
+    line-height: 1.5;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
@@ -369,4 +372,58 @@
     .backButton {
         display: block;
     }
+}
+
+/* Dropdown */
+.headerActions {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.iconBtn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.iconBtn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    min-width: 160px;
+    overflow: hidden;
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: #f1f5f9;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.dropdownItem:hover {
+    background: rgba(255, 255, 255, 0.05);
 }

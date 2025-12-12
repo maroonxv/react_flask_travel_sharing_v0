@@ -1,40 +1,53 @@
+import { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Home, Globe, Map, User, LogOut, MessageSquare } from 'lucide-react';
+import { Home, Globe, Map, User, LogOut, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import styles from './Layout.module.css';
 
 const Layout = () => {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const isActive = (path) => location.pathname.startsWith(path);
 
     return (
         <div className={styles.container}>
-            <aside className={styles.sidebar}>
-                <div className={styles.logo}>TravelShare</div>
+            <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+                <div className={styles.header}>
+                    <div className={styles.logo}>
+                        {isCollapsed ? 'TS' : 'TravelShare'}
+                    </div>
+                    <button 
+                        className={styles.collapseBtn}
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                    >
+                        {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                    </button>
+                </div>
+                
                 <nav className={styles.nav}>
-                    <Link to="/social" className={`${styles.link} ${isActive('/social') ? styles.activeSocial : ''}`}>
+                    <Link to="/social" className={`${styles.link} ${isActive('/social') ? styles.activeSocial : ''}`} title="社区">
                         <Globe size={20} />
-                        <span>社区</span>
+                        <span className={styles.linkText}>社区</span>
                     </Link>
-                    <Link to="/travel" className={`${styles.link} ${isActive('/travel') ? styles.activeTravel : ''}`}>
+                    <Link to="/travel" className={`${styles.link} ${isActive('/travel') ? styles.activeTravel : ''}`} title="旅行">
                         <Map size={20} />
-                        <span>旅行</span>
+                        <span className={styles.linkText}>旅行</span>
                     </Link>
-                    <Link to="/chat" className={`${styles.link} ${isActive('/chat') ? styles.activeChat : ''}`}>
+                    <Link to="/chat" className={`${styles.link} ${isActive('/chat') ? styles.activeChat : ''}`} title="消息">
                         <MessageSquare size={20} />
-                        <span>消息</span>
+                        <span className={styles.linkText}>消息</span>
                     </Link>
-                    <Link to="/profile" className={`${styles.link} ${isActive('/profile') ? styles.activeProfile : ''}`}>
+                    <Link to="/profile" className={`${styles.link} ${isActive('/profile') ? styles.activeProfile : ''}`} title="我的">
                         <User size={20} />
-                        <span>我的</span>
+                        <span className={styles.linkText}>我的</span>
                     </Link>
                 </nav>
                 <div className={styles.footer}>
-                    <button onClick={logout} className={styles.logoutBtn}>
+                    <button onClick={logout} className={styles.logoutBtn} title="退出登录">
                         <LogOut size={20} />
-                        <span>退出登录</span>
+                        <span className={styles.linkText}>退出登录</span>
                     </button>
                 </div>
             </aside>

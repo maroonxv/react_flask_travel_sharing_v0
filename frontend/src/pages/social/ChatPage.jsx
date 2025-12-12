@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { 
     getConversations, 
     getMessages, 
@@ -10,7 +11,8 @@ import {
     createConversation
 } from '../../api/social';
 import { useAuth } from '../../context/AuthContext';
-import { Send, User, Check, X, MessageSquare, ArrowLeft, Paperclip, Smile } from 'lucide-react';
+import { Send, User, Check, X, MessageSquare, ArrowLeft, Paperclip, Smile, Plus, Users, UserPlus } from 'lucide-react';
+import AddFriendModal from './AddFriendModal';
 import styles from './ChatPage.module.css';
 
 const ChatPage = () => {
@@ -22,22 +24,32 @@ const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showAddFriend, setShowAddFriend] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
     const messagesEndRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         loadAllData();
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     useEffect(() => {
         if (activeConvId) {
             loadMessages(activeConvId);
-            // In a real app, join socket room here
         }
     }, [activeConvId]);
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setShowDropdown(false);
+        }
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,7 +68,6 @@ const ChatPage = () => {
             setConversations(Array.isArray(convsData) ? convsData : []);
             setFriends(Array.isArray(friendsData) ? friendsData : []);
 
-            // On desktop, auto-select first conversation
             if (window.innerWidth > 900 && Array.isArray(convsData) && convsData.length > 0 && !activeConvId) {
                 setActiveConvId(convsData[0].id);
             }
@@ -101,7 +112,6 @@ const ChatPage = () => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend(e);
-            // Reset height
             e.target.style.height = 'auto';
         }
     };
@@ -134,7 +144,6 @@ const ChatPage = () => {
             if (convId) {
                 setActiveConvId(convId);
             } else {
-                // Fallback: look for conversation with this friend
                 const target = convs.find(c => c.participants && c.participants.includes(friendId)); 
                 if (target) setActiveConvId(target.id);
             }
@@ -146,6 +155,24 @@ const ChatPage = () => {
 
     const getConvName = (conv) => {
         return conv.name || conv.other_user_name || "Chat";
+    };
+
+    const getConvAvatar = (conv) => {
+        // Fallback logic if 'other_user_avatar' is not directly available, 
+        // assumes backend might provide it or we use placeholder
+        return conv.other_user_avatar || null;
+    };
+    
+    const getOtherUserId = (conv) => {
+        // Try to find the other user ID. 
+        // If 'participants' is array of IDs and 'user.id' is known.
+        if (conv.other_user_id) return conv.other_user_id;
+        
+        if (conv.participants && user) {
+             const other = conv.participants.find(p => p !== user.id);
+             return other;
+        }
+        return null;
     };
 
     const formatTime = (dateStr) => {
@@ -167,6 +194,7 @@ const ChatPage = () => {
     };
 
     const activeConv = conversations.find(c => c.id === activeConvId);
+    const otherUserId = activeConv ? getOtherUserId(activeConv) : null;
 
     return (
         <div className={`${styles.container} ${activeConvId ? styles.viewChat : ''}`}>
@@ -174,6 +202,23 @@ const ChatPage = () => {
             <div className={styles.sidebar}>
                 <div className={styles.sidebarHeader}>
                     <span className={styles.sidebarTitle}>Messages</span>
+                    <div className={styles.headerActions} ref={dropdownRef}>
+                        <button className={styles.iconBtn} onClick={() => setShowDropdown(!showDropdown)}>
+                            <Plus size={20} />
+                        </button>
+                        {showDropdown && (
+                            <div className={styles.dropdownMenu}>
+                                <button className={styles.dropdownItem} onClick={() => { setShowAddFriend(true); setShowDropdown(false); }}>
+                                    <UserPlus size={16} />
+                                    <span>Add Friend</span>
+                                </button>
+                                <button className={styles.dropdownItem} onClick={() => setShowDropdown(false)}>
+                                    <Users size={16} />
+                                    <span>Create Group</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 
                 <div className={styles.conversationList}>
@@ -230,7 +275,11 @@ const ChatPage = () => {
                             onClick={() => setActiveConvId(conv.id)}
                         >
                             <div className={styles.avatar}>
-                                {getConvName(conv).charAt(0).toUpperCase()}
+                                {getConvAvatar(conv) ? (
+                                    <img src={getConvAvatar(conv)} alt="" style={{ width: '100%', height: '100%' }} />
+                                ) : (
+                                    getConvName(conv).charAt(0).toUpperCase()
+                                )}
                             </div>
                             <span className={styles.itemName}>{getConvName(conv)}</span>
                             <span className={styles.itemMeta}>
@@ -252,15 +301,19 @@ const ChatPage = () => {
                             <button className={styles.backButton} onClick={() => setActiveConvId(null)}>
                                 <ArrowLeft size={24} />
                             </button>
-                            <div className={styles.avatar} style={{width: 40, height: 40, fontSize: '1rem'}}>
-                                {getConvName(activeConv || {}).charAt(0).toUpperCase()}
-                            </div>
-                            <div className={styles.headerInfo}>
+                            <Link to={otherUserId ? `/users/${otherUserId}` : '#'} className={styles.avatar} style={{width: 40, height: 40, fontSize: '1rem', textDecoration: 'none'}}>
+                                {activeConv && getConvAvatar(activeConv) ? (
+                                    <img src={getConvAvatar(activeConv)} alt="" style={{ width: '100%', height: '100%' }} />
+                                ) : (
+                                    getConvName(activeConv || {}).charAt(0).toUpperCase()
+                                )}
+                            </Link>
+                            <Link to={otherUserId ? `/users/${otherUserId}` : '#'} className={styles.headerInfo} style={{textDecoration: 'none'}}>
                                 <span className={styles.headerName}>
                                     {activeConv ? getConvName(activeConv) : 'Chat'}
                                 </span>
                                 <span className={styles.headerStatus}>online</span>
-                            </div>
+                            </Link>
                         </div>
 
                         <div className={styles.messages}>
@@ -318,6 +371,8 @@ const ChatPage = () => {
                     </div>
                 )}
             </div>
+
+            {showAddFriend && <AddFriendModal onClose={() => setShowAddFriend(false)} />}
         </div>
     );
 };

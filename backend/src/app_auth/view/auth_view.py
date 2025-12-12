@@ -170,11 +170,8 @@ def get_user_profile(user_id):
     user = service.get_user_by_id(user_id)
     
     if user:
-        # 返回公开信息，可以使用相同的 serialize_user，或者过滤敏感字段
-        # 这里为了简单直接复用 serialize_user，但在真实场景应避免暴露 email 等隐私
-        # 假设 serialize_user 返回的是全量信息，我们在视图层做过滤
+        # 返回公开信息
         user_data = serialize_user(user)
-        # 过滤敏感字段
         safe_data = {
             'id': user_data['id'],
             'username': user_data['username'],
@@ -185,6 +182,27 @@ def get_user_profile(user_id):
         return jsonify(safe_data), 200
     else:
         return jsonify({'error': 'User not found'}), 404
+
+@auth_bp.route('/users', methods=['GET'])
+def search_users():
+    """搜索用户"""
+    query = request.args.get('search', '').strip()
+    if not query:
+        return jsonify([]), 200
+        
+    service = get_auth_service()
+    users = service.search_users(query)
+    
+    results = []
+    for user in users:
+        user_data = serialize_user(user)
+        results.append({
+            'id': user_data['id'],
+            'username': user_data['username'],
+            'profile': user_data['profile']
+        })
+        
+    return jsonify(results), 200
 
 @auth_bp.route('/change-password', methods=['POST'])
 def change_password():

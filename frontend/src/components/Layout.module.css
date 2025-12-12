@@ -17,18 +17,66 @@
     padding: var(--spacing-md);
     flex-shrink: 0;
     z-index: 10;
+    transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 80px;
+    padding: var(--spacing-md) var(--spacing-sm);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-sm);
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-xl);
-    padding: 0 var(--spacing-sm);
     background: linear-gradient(135deg, #6366F1, #06B6D4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3));
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 0.2s;
+}
+
+.collapsed .logo {
+    font-size: 1.2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.collapseBtn {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.collapsed .collapseBtn {
+    position: absolute;
+    right: -12px;
+    top: 24px;
+    background: #0f172a; /* Match body bg */
+    z-index: 20;
+}
+
+.collapseBtn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .nav {
@@ -48,6 +96,21 @@
     transition: all 0.3s ease;
     font-weight: 500;
     border: 1px solid transparent;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.collapsed .link {
+    justify-content: center;
+    padding: var(--spacing-md) 0;
+}
+
+.linkText {
+    transition: opacity 0.2s;
+}
+
+.collapsed .linkText {
+    display: none;
 }
 
 .link:hover {
@@ -84,6 +147,14 @@
     border-left: 2px solid #f8fafc;
 }
 
+.collapsed .link.activeSocial,
+.collapsed .link.activeTravel,
+.collapsed .link.activeChat,
+.collapsed .link.activeProfile {
+    border-left: none; /* Remove left border in collapsed mode or keep it? Maybe keep it. */
+    border-left: 2px solid currentColor;
+}
+
 .footer {
     margin-top: auto;
     padding-top: var(--spacing-md);
@@ -101,6 +172,12 @@
     transition: all 0.2s;
     background: transparent;
     border: 1px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.collapsed .logoutBtn {
+    justify-content: center;
 }
 
 .logoutBtn:hover {

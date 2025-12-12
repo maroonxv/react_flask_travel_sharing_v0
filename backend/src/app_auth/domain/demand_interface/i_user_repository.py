@@ -71,6 +71,19 @@ class IUserRepository(ABC):
         pass
     
     @abstractmethod
+    def search_by_username(self, query: str, limit: int = 20) -> List[User]:
+        """根据用户名搜索用户
+        
+        Args:
+            query: 搜索关键词
+            limit: 限制数量
+            
+        Returns:
+            用户列表
+        """
+        pass
+
+    @abstractmethod
     def find_by_role(self, role: UserRole) -> List[User]:
         """根据角色查找用户列表
         

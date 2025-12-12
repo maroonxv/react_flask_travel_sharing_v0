@@ -107,6 +107,19 @@ class UserRepositoryImpl(IUserRepository):
             return user_po.to_domain()
         return None
     
+    def search_by_username(self, query: str, limit: int = 20) -> List[User]:
+        """根据用户名搜索用户
+        
+        Args:
+            query: 搜索关键词
+            limit: 限制数量
+            
+        Returns:
+            用户列表
+        """
+        user_pos = self._user_dao.search_by_username(query, limit)
+        return [po.to_domain() for po in user_pos]
+
     def find_by_role(self, role: UserRole) -> List[User]:
         """根据角色查找用户列表
         

@@ -509,13 +509,49 @@ class SocialService:
             
             convs = conv_repo.find_by_user(user_id)
             
+            # Batch fetch participants info to enrich title/avatar for private chats
+            all_participant_ids = set()
+            for c in convs:
+                all_participant_ids.update(c.participant_ids)
+            
+            user_info_map = {}
+            if all_participant_ids:
+                try:
+                    user_dao = SqlAlchemyUserDao(session)
+                    user_repo = UserRepositoryImpl(user_dao)
+                    users = user_repo.find_by_ids([UserId(uid) for uid in all_participant_ids])
+                    for u in users:
+                        user_info_map[u.id.value] = {
+                            "name": u.username.value,
+                            "avatar": u.profile.avatar_url
+                        }
+                except Exception as e:
+                    print(f"Error fetching participants info: {e}")
+
             results = []
             for conv in convs:
                 last_msg = conv.messages[-1] if conv.messages else None
+                
+                # Determine display name and avatar
+                other_user_name = None
+                other_user_avatar = None
+                other_user_id = None
+                
+                if conv.conversation_type.value == "private":
+                    other_id = next((pid for pid in conv.participant_ids if pid != user_id), None)
+                    if other_id:
+                        other_user_id = other_id
+                        info = user_info_map.get(other_id, {})
+                        other_user_name = info.get("name")
+                        other_user_avatar = info.get("avatar")
+                
                 results.append({
                     "id": conv.id.value,
                     "type": conv.conversation_type.value,
-                    "title": conv.title,
+                    "title": conv.title, # Group title or None
+                    "other_user_id": other_user_id,
+                    "other_user_name": other_user_name,
+                    "other_user_avatar": other_user_avatar,
                     "unread_count": conv.get_unread_count(user_id),
                     "last_message": {
                         "content": last_msg.content.text if last_msg else None,

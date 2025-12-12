@@ -29,6 +29,10 @@ class SqlAlchemyUserDao(IUserDao):
         stmt = select(UserPO).where(UserPO.username == username)
         return self.session.execute(stmt).scalars().first()
 
+    def search_by_username(self, query: str, limit: int = 20) -> List[UserPO]:
+        stmt = select(UserPO).where(UserPO.username.ilike(f"%{query}%")).limit(limit)
+        return list(self.session.execute(stmt).scalars().all())
+
     def find_by_role(self, role: str) -> List[UserPO]:
         stmt = select(UserPO).where(UserPO.role == role)
         return list(self.session.execute(stmt).scalars().all())

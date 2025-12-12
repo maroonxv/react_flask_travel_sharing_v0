@@ -107,3 +107,8 @@ export const getFriendshipStatus = async (targetUserId) => {
     const response = await client.get(`/social/friends/${targetUserId}/status`);
     return response.data;
 };
+
+export const searchUsers = async (query) => {
+    const response = await client.get(`/auth/users?search=${encodeURIComponent(query)}`);
+    return response.data;
+};
