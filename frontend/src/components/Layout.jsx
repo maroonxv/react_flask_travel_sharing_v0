@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Home, Globe, Map, User, LogOut, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Globe, Map, User, LogOut, MessageSquare, ChevronLeft, ChevronRight, Bot } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import styles from './Layout.module.css';
 
@@ -39,7 +39,11 @@ const Layout = () => {
                         <MessageSquare size={20} />
                         <span className={styles.linkText}>消息</span>
                     </Link>
-                    <Link to="/profile" className={`${styles.link} ${isActive('/profile') ? styles.activeProfile : ''}`} title="我的">
+                    <Link to="/ai-assistant" className={`${styles.link} ${isActive('/ai-assistant') ? styles.activeAi : ''}`} title="AI助手">
+                        <Bot size={20} />
+                        <span className={styles.linkText}>AI助手</span>
+                    </Link>
+                    <Link to={`/profile/${user?.id}`} className={`${styles.link} ${isActive('/profile') ? styles.activeProfile : ''}`} title="我的">
                         <User size={20} />
                         <span className={styles.linkText}>我的</span>
                     </Link>

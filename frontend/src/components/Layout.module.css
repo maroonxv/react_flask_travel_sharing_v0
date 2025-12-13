@@ -141,6 +141,13 @@
     text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
 }
 
+.activeAi {
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.15), transparent);
+    color: #A855F7;
+    border-left: 2px solid #A855F7;
+    text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+}
+
 .activeProfile {
     background: linear-gradient(90deg, rgba(248, 250, 252, 0.1), transparent);
     color: #f8fafc;
@@ -150,6 +157,7 @@
 .collapsed .link.activeSocial,
 .collapsed .link.activeTravel,
 .collapsed .link.activeChat,
+.collapsed .link.activeAi,
 .collapsed .link.activeProfile {
     border-left: none; /* Remove left border in collapsed mode or keep it? Maybe keep it. */
     border-left: 2px solid currentColor;

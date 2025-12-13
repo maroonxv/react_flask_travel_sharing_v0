@@ -24,6 +24,7 @@ import TripDetailPage from './pages/travel/TripDetailPage';
 // Admin
 import AdminLayout from './admin/components/AdminLayout';
 import AdminResourcePage from './admin/pages/AdminResourcePage';
+import AiChatPage from './pages/ai/AiChatPage';
 
 import { Toaster } from 'react-hot-toast';
 
@@ -55,20 +56,23 @@ function App() {
               {/* Chat */}
               <Route path="/chat" element={<ChatPage />} />
 
+              {/* AI */}
+              <Route path="/ai-assistant" element={<AiChatPage />} />
+
               {/* Travel */}
               <Route path="/travel" element={<TravelPage />} />
+              <Route path="/travel/my-trips" element={<MyTripsPage />} />
               <Route path="/travel/public" element={<PublicTripsPage />} />
-              <Route path="/travel/trips/:id" element={<TripDetailPage />} />
-
+              <Route path="/travel/:tripId" element={<TripDetailPage />} />
+              
               {/* Profile */}
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/users/:userId" element={<ProfilePage />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/profile/edit" element={<ManageProfilePage />} />
             </Route>
           </Route>
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/social" replace />} />
         </Routes>
       </AuthProvider>
     </Router>
