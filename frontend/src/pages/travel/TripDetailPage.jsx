@@ -14,7 +14,7 @@ import { toast } from 'react-hot-toast';
 import styles from './TripDetail.module.css';
 
 const TripDetailPage = () => {
-    const { id } = useParams();
+    const { tripId: id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const [trip, setTrip] = useState(null);

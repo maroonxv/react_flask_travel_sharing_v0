@@ -16,7 +16,7 @@ const TripCard = ({ trip }) => {
     };
 
     return (
-        <Link to={`/travel/trips/${trip.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+        <Link to={`/travel/${trip.id}`} style={{ textDecoration: 'none', display: 'block' }}>
             <Card className={styles.card}>
                 <div className={styles.imageContainer}>
                     {trip.cover_image_url ? (

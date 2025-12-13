@@ -79,7 +79,7 @@ const PostDetailPage = () => {
                     ) : (
                         comments.map((comment, index) => (
                             <div key={index} className={styles.comment}>
-                                <Link to={`/users/${comment.author_id}`} className={`${styles.commentAvatar} ${styles.commentAvatarLink}`}>
+                                <Link to={`/profile/${comment.author_id}`} className={`${styles.commentAvatar} ${styles.commentAvatarLink}`}>
                                     {comment.author_avatar ? (
                                         <img src={comment.author_avatar} alt={comment.author_name} className={styles.avatarImg} />
                                     ) : (
@@ -87,7 +87,7 @@ const PostDetailPage = () => {
                                     )}
                                 </Link>
                                 <div className={styles.commentContent}>
-                                    <Link to={`/users/${comment.author_id}`} className={styles.commentUserLink}>
+                                    <Link to={`/profile/${comment.author_id}`} className={styles.commentUserLink}>
                                         {comment.author_name || 'User'}
                                     </Link>
                                     <p className={styles.commentText}>{comment.content}</p>

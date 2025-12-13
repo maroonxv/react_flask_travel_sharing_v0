@@ -421,14 +421,14 @@ const ChatPage = () => {
                             <button className={styles.backButton} onClick={() => setActiveConvId(null)}>
                                 <ArrowLeft size={24} />
                             </button>
-                            <Link to={otherUserId ? `/users/${otherUserId}` : '#'} className={styles.avatar} style={{width: 40, height: 40, fontSize: '1rem', textDecoration: 'none'}}>
+                            <Link to={otherUserId ? `/profile/${otherUserId}` : '#'} className={styles.avatar} style={{width: 40, height: 40, fontSize: '1rem', textDecoration: 'none'}}>
                                 {activeConv && getConvAvatar(activeConv) ? (
                                     <img src={getConvAvatar(activeConv)} alt="" style={{ width: '100%', height: '100%' }} />
                                 ) : (
                                     getConvName(activeConv || {}).charAt(0).toUpperCase()
                                 )}
                             </Link>
-                            <Link to={otherUserId ? `/users/${otherUserId}` : '#'} className={styles.headerInfo} style={{textDecoration: 'none'}}>
+                            <Link to={otherUserId ? `/profile/${otherUserId}` : '#'} className={styles.headerInfo} style={{textDecoration: 'none'}}>
                                 <span className={styles.headerName}>
                                     {activeConv ? getConvName(activeConv) : '聊天'}
                                 </span>

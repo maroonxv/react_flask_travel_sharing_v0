@@ -90,7 +90,7 @@ const PostCard = ({ post, onDelete }) => {
 
             {/* 2. Header: User Info */}
             <div className={styles.header}>
-                <Link to={`/users/${post.author_id}`} className={styles.userInfo} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to={`/profile/${post.author_id}`} className={styles.userInfo} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <div className={styles.avatar}>
                         {post.author_avatar ? (
                              <img src={post.author_avatar} alt={post.author_name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
@@ -142,7 +142,7 @@ const PostCard = ({ post, onDelete }) => {
                     <div className={styles.tripLink}>
                         <MapPin size={14} />
                         {post.trip.is_public ? (
-                            <Link to={`/travel/trips/${post.trip.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            <Link to={`/travel/${post.trip.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                                 {post.trip.title}
                             </Link>
                         ) : (

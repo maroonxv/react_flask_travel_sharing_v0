@@ -47,7 +47,7 @@ const TripMembersModal = ({ trip, onClose, onSuccess, isOpen = true }) => {
                 {trip.members.map(member => (
                     <div key={member.user_id} className={styles.memberItem}>
                         <Link 
-                            to={`/users/${member.user_id}`}
+                            to={`/profile/${member.user_id}`}
                             onClick={onClose}
                             className={styles.memberLink}
                         >
