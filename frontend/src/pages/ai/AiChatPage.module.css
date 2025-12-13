@@ -1,30 +1,140 @@
+/* Layout Grid: List + Chat */
 .container {
   display: flex;
-  flex-direction: column;
-  height: calc(100vh - 64px);
-  max-width: 900px;
-  margin: 0 auto;
-  background: transparent;
+  height: 100%; /* Match ChatPage */
+  width: 100%;
+  overflow: hidden;
+  background-color: transparent;
 }
 
-.header {
-  padding: 1rem 1.5rem;
+/* --- Left Column: History List --- */
+.sidebar {
+  width: 360px; /* Match ChatPage */
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
   background: var(--bg-secondary);
   backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--border-color);
-  text-align: center;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  margin-top: 1rem;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.header h2 {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 1.25rem;
+.sidebarHeader {
+  padding: var(--spacing-md) var(--spacing-lg); /* Match ChatPage */
+  height: 64px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  justify-content: space-between;
+}
+
+.sidebarTitle {
+  font-size: 1.1rem;
   font-weight: 600;
+  color: var(--text-primary);
+  /* Optional: Keep gradient if desired, or match simple text of ChatPage */
   background: linear-gradient(to right, var(--color-primary), var(--color-travel));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.newChatBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; /* Match ChatPage iconBtn size often used */
+  height: 36px;
+  border-radius: 50%;
+  /* background: var(--bg-secondary-hover);  Removed to match iconBtn style usually transparent */
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.newChatBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.1);
+  transform: rotate(90deg);
+}
+
+.conversationList {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm); /* Match ChatPage */
+  display: flex;
+  flex-direction: column;
+  /* gap: 0.25rem; Removed to match ChatPage marginBottom approach */
+}
+
+.historyItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md); /* Match ChatPage listItem padding */
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  color: var(--text-secondary);
+  height: 72px; /* Match ChatPage listItem height */
+  margin-bottom: 2px;
+}
+
+.historyItem:hover {
+  background-color: var(--bg-secondary-hover);
+  color: var(--text-primary);
+}
+
+.historyItem.active {
+  background-color: var(--color-accent-dim);
+  color: var(--color-primary);
+  /* border-left: 3px solid var(--color-primary); Removed to match ChatPage active style */
+}
+
+.historyTitle {
+  font-weight: 600; /* Match ChatPage itemName */
+  font-size: 0.95rem;
+  color: var(--text-primary); /* Ensure title is primary color */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.historyDate {
+  font-size: 0.75rem; /* Match itemMeta/Preview size roughly */
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+}
+
+/* --- Right Column: Chat Area --- */
+.mainArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.4); /* Match ChatPage chatArea bg if any, or keep this overlay */
+  position: relative;
+  overflow: hidden;
+}
+
+.chatHeader {
+  height: 64px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  backdrop-filter: var(--glass-blur);
+}
+
+.chatTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .chatWindow {
@@ -34,10 +144,25 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background: rgba(15, 23, 42, 0.4); /* Slight overlay */
-  backdrop-filter: blur(4px);
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  gap: 1rem;
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+}
+
+/* Message Bubbles */
 .message {
   display: flex;
   flex-direction: column;
@@ -167,55 +292,94 @@
   font-size: 0.9rem;
 }
 
+/* Input Area - Match ChatPage */
 .inputArea {
-  padding: 1.25rem;
-  background: var(--bg-secondary);
-  backdrop-filter: var(--glass-blur);
-  border-top: 1px solid var(--border-color);
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg); /* Match ChatPage padding */
+  background: linear-gradient(to top, var(--bg-primary) 20%, transparent); /* Match ChatPage gradient */
+  /* border-top: 1px solid var(--border-color); Removed to match ChatPage */
+  backdrop-filter: none; /* ChatPage uses gradient, not blur on container */
+  display: block; /* Changed from flex to block to contain wrapper */
+  z-index: 10;
+  margin-bottom: 0;
+}
+
+.inputWrapper {
   display: flex;
-  gap: 1rem;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  margin-bottom: 1rem;
+  gap: var(--spacing-sm);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  align-items: center; /* Match ChatPage alignment */
 }
 
 .inputArea input {
   flex: 1;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color);
+  background: transparent; /* Match ChatPage inputField */
+  border: none;
   color: var(--text-primary);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-full);
+  padding: 8px 4px;
+  border-radius: 0;
   outline: none;
-  transition: all 0.2s;
+  transition: none;
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-shadow: none;
 }
 
 .inputArea input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .inputArea input::placeholder {
-  color: var(--text-disabled);
+  color: var(--text-secondary);
 }
 
-.inputArea button {
-  background: var(--color-primary);
-  color: white;
+.sendBtn {
+  background: transparent;
+  color: var(--color-accent); /* Match ChatPage sendBtn */
   border: none;
-  padding: 0 1.5rem;
-  border-radius: var(--radius-full);
-  font-weight: 600;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.inputArea button:hover {
-  background: #3b82f6;
-  transform: translateY(-1px);
+.sendBtn:hover {
+  background: rgba(96, 165, 250, 0.1);
+  transform: none;
 }
 
-.inputArea button:disabled {
-  background: var(--text-disabled);
+.sendBtn:disabled {
+  background: transparent;
+  color: var(--text-disabled);
   cursor: not-allowed;
   transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .container {
+        position: relative;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
 }
